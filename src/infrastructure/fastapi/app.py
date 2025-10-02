@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from src.shared.logger import get_logger
 from src.shared.config import get_config
 from src.infrastructure.google_generative_ai.gemini_service import GeminiService
+from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
 
 config = get_config()
 logger = get_logger("fastapi-app")
@@ -16,7 +17,8 @@ logger = get_logger("fastapi-app")
 instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH")
 
 app = FastAPI()
-gemini = GeminiService(instructions_json_path=instructions_path)
+gemini_service = GeminiService(instructions_json_path=instructions_path)
+gemini = GeminiGateway(gemini_service)  # Usar el gateway
 
 # Memoria simple en RAM: {sender_id: [mensajes]}
 conversation_memory = defaultdict(list)
