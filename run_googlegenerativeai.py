@@ -2,33 +2,17 @@
 Path: run_googlegenerativeai.py
 """
 
+import traceback
 from flask import Flask, request, jsonify
+from collections import defaultdict
 
 from src.infrastructure.google_generative_ai.gemini_service import GeminiService
 
 app = Flask(__name__)
 gemini = GeminiService(instructions_json_path="src/infrastructure/google_generative_ai/system_instructions.json")
 
-@app.route("/generate", methods=["POST"])
-def generate():
-    "Genera una respuesta a partir de un prompt utilizando el servicio Gemini."
-    try:
-        data = request.get_json()
-        print("Datos recibidos:", data)  # <-- Agrega esto
-        prompt = data.get("prompt", "")
-        response = gemini.get_response(prompt)
-        print("Respuesta generada:", response)  # <-- Y esto
-        return jsonify({"response": response})
-    except (KeyError, TypeError, ValueError) as e:
-        import traceback
-        print("Error en endpoint /generate:", e)
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        import traceback
-        print("Error inesperado en endpoint /generate:", e)
-        traceback.print_exc()
-        return jsonify({"error": "Unexpected error occurred."}), 500
+# Memoria simple en RAM: {sender_id: [mensajes]}
+conversation_memory = defaultdict(list)
 
 @app.route("/webhooks/rest/webhook", methods=["POST"])
 def rasa_compatible_webhook():
@@ -42,11 +26,24 @@ def rasa_compatible_webhook():
         print("Datos recibidos (Rasa compatible):", data)
         prompt = data.get("message", "")
         sender = data.get("sender", "user")
-        response_text = gemini.get_response(prompt)
+
+        # Guardar el mensaje del usuario en la memoria
+        conversation_memory[sender].append(f"Usuario: {prompt}")
+
+        # Construir historial para enviar al modelo (últimos 10 mensajes)
+        history = "\n".join(conversation_memory[sender][-10:])
+
+        # Opcional: puedes agregar instrucciones de sistema aquí
+        prompt_with_history = f"{history}\nGemini:"
+
+        response_text = gemini.get_response(prompt_with_history)
+
+        # Guardar la respuesta del bot en la memoria
+        conversation_memory[sender].append(f"Gemini: {response_text}")
+
         print("Respuesta generada:", response_text)
         return jsonify([{"recipient_id": sender, "text": response_text}])
-    except Exception as e:
-        import traceback
+    except (KeyError, TypeError, ValueError) as e:
         print("Error en endpoint /webhooks/rest/webhook:", e)
         traceback.print_exc()
         return jsonify([{"recipient_id": "user", "text": f"[Error: {e}]"}]), 500
