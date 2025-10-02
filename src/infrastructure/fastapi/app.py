@@ -13,7 +13,7 @@ from src.infrastructure.google_generative_ai.gemini_service import GeminiService
 config = get_config()
 logger = get_logger("fastapi-app")
 
-instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH", "src/infrastructure/google_generative_ai/system_instructions.json")
+instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH")
 
 app = FastAPI()
 gemini = GeminiService(instructions_json_path=instructions_path)
