@@ -1,5 +1,5 @@
 """
-Servidor FastAPI para Gemini Bot.
+Path: src/infrastructure/fastapi/app.py
 """
 
 from collections import defaultdict
@@ -10,14 +10,27 @@ from src.shared.logger import get_logger
 from src.shared.config import get_config
 from src.infrastructure.google_generative_ai.gemini_service import GeminiService
 from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
+from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
+from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
 
 config = get_config()
 logger = get_logger("fastapi-app")
 
+# Obtener ruta de instrucciones del sistema
 instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH")
 
+# Crear repositorio de instrucciones
+instructions_repository = JsonInstructionsRepository(instructions_path)
+
+# Usar el caso de uso para cargar las instrucciones
+load_instructions_use_case = LoadSystemInstructionsUseCase(instructions_repository)
+system_instructions = load_instructions_use_case.execute()
+
+logger.debug("Instrucciones de sistema cargadas: %s", system_instructions)
+
+# Inicializar servicio y gateway
 app = FastAPI()
-gemini_service = GeminiService(instructions_json_path=instructions_path)
+gemini_service = GeminiService(api_key=None)  # Ya no pasamos instructions_json_path
 gemini = GeminiGateway(gemini_service)  # Usar el gateway
 
 # Memoria simple en RAM: {sender_id: [mensajes]}
@@ -46,7 +59,8 @@ async def rasa_compatible_webhook(request: Request):
         # Opcional: puedes agregar instrucciones de sistema aquí
         prompt_with_history = f"{history}\nGemini:"
 
-        response_text = gemini.get_response(prompt_with_history)
+        # Usar las instrucciones de sistema cargadas por el caso de uso
+        response_text = gemini.get_response(prompt_with_history, system_instructions)
 
         # Guardar la respuesta del bot en la memoria
         conversation_memory[sender].append(f"Gemini: {response_text}")
