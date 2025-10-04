@@ -9,10 +9,35 @@ from src.shared.logger import get_logger
 from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
 from src.infrastructure.audio.pydub.pydub_converter import PydubConverter
 from src.infrastructure.audio.speech_recognition.speech_recognition_transcriber import SpeechRecognitionTranscriber
+from src.interface_adapter.controllers.audio_transcriber_controller import AudioTranscriberController
 from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
 from src.entities.audio_transcriber import AudioTranscription
 
 logger = get_logger("local-audio-transcriber")
+
+def main(audio_file_path: str = None):
+    "Función principal para ejecutar la transcripción de audio desde la línea de comandos."
+    if not audio_file_path:
+        audio_file_path = input("Ingrese la ruta del archivo de audio: ")
+
+    try:
+        use_case = LocalAudioTranscriber()
+        controller = AudioTranscriberController(use_case)
+        transcription = controller.transcribe_audio(audio_file_path)
+        logger.info("Transcripción: %s", transcription.text)
+    except FileNotFoundError as e:
+        logger.error("No se encontró el archivo: %s", e)
+        logger.warning("Intentando fallback: transcripción vacía.")
+        logger.info("Transcripción: ")
+    except PermissionError as e:
+        logger.error("No se tienen permisos para acceder al archivo: %s", e)
+        logger.warning("Intentando fallback: transcripción vacía.")
+        logger.info("Transcripción: ")
+    except OSError as e:
+        logger.error("Ocurrió un error de sistema durante la transcripción: %s", e)
+        logger.warning("Intentando fallback: transcripción vacía.")
+        logger.info("Transcripción: ")
+
 
 class LocalAudioTranscriber(AudioTranscriberUseCase):
     "Transcriptor de audio local que usa Vosk (offline) y SpeechRecognition (Google, online) como fallback."
