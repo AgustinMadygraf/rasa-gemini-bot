@@ -3,6 +3,7 @@ Path: src/infrastructure/audio/speech_recognition/speech_recognition_transcriber
 """
 
 import speech_recognition as sr
+
 from src.shared.logger import get_logger
 
 logger = get_logger("speech-recognition-transcriber")

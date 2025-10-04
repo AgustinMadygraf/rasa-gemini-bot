@@ -3,28 +3,22 @@ Path: src/infrastructure/audio/local_audio_transcriber.py
 """
 
 import os
-import speech_recognition as sr
 
 from src.shared.logger import get_logger
-
 
 from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
 from src.infrastructure.audio.pydub.pydub_converter import PydubConverter
 from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
 from src.entities.audio_transcriber import AudioTranscription
-
+from src.infrastructure.audio.speech_recognition.speech_recognition_transcriber import SpeechRecognitionTranscriber
 
 logger = get_logger("local-audio-transcriber")
 
 class LocalAudioTranscriber(AudioTranscriberUseCase):
-    """
-    Implementación concreta del caso de uso para transcribir audio localmente usando 
-    Vosk (offline) y Google (fallback).
-    """
-
+    "Transcriptor de audio local que usa Vosk (offline) y SpeechRecognition (Google, online) como fallback."
     def __init__(self, vosk_model_path: str = "model"):
         self.vosk_transcriber = VoskTranscriber(vosk_model_path)
-        self.recognizer = sr.Recognizer()
+        self.speech_recognition_transcriber = SpeechRecognitionTranscriber()
 
     def transcribe(self, audio_file_path: str) -> AudioTranscription:
         "Transcribe el archivo de audio especificado"
@@ -56,23 +50,9 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
         if self.vosk_transcriber.vosk_enabled:
             text = self.vosk_transcriber.transcribe(wav_path)
 
-        # Si Vosk falla o no está disponible, usar Google (requiere Internet)
+        # Si Vosk falla o no está disponible, usar SpeechRecognitionTranscriber (Google)
         if not text or (isinstance(text, str) and text.startswith("Error usando Vosk")):
-            try:
-                logger.info("Intentando transcripción online con Google Speech Recognition...")
-                with sr.AudioFile(wav_path) as source:
-                    audio_data = self.recognizer.record(source)
-                text = self.recognizer.recognize_google(audio_data, language="es-ES")
-                logger.info("Transcripción exitosa con Google Speech Recognition.")
-            except sr.UnknownValueError:
-                logger.warning("Google Speech Recognition no pudo entender el audio.")
-                text = "Audio unintelligible"
-            except sr.RequestError as e:
-                logger.critical("No se pudo conectar con Google Speech Recognition: %s", e)
-                text = f"Could not request results from Google Speech Recognition service; {e}"
-            except (OSError, ValueError) as e:
-                logger.error("Error usando Google Speech Recognition: %s", e)
-                text = f"Error usando Google Speech Recognition: {e}"
+            text = self.speech_recognition_transcriber.transcribe(wav_path, language="es-ES")
 
         if os.path.exists(wav_path):
             try:

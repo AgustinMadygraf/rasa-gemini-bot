@@ -3,12 +3,14 @@ Path: run_transcriber.py
 """
 
 from src.infrastructure.audio.local_audio_transcriber import LocalAudioTranscriber
+from src.interface_adapter.controllers.audio_transcriber_controller import AudioTranscriberController
 
 if __name__ == "__main__":
-    app = LocalAudioTranscriber()
+    use_case = LocalAudioTranscriber()  # Implementa AudioTranscriberUseCase
+    controller = AudioTranscriberController(use_case)
     audio_file_path = input("Ingrese la ruta del archivo de audio: ")
     try:
-        transcription = app.transcribe(audio_file_path)
+        transcription = controller.transcribe_audio(audio_file_path)
         print(f"Transcripción: {transcription.text}")
     except FileNotFoundError as e:
         print(f"No se encontró el archivo: {e}")

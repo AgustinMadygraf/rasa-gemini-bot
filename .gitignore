@@ -5,3 +5,4 @@ __pycache__/
 src/infrastructure/google_generative_ai/system_instructions.json
 .env
 model/
+docs/todo.md
