@@ -10,12 +10,12 @@ from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
 from src.infrastructure.audio.pydub.pydub_converter import PydubConverter
 from src.infrastructure.audio.speech_recognition.speech_recognition_transcriber import SpeechRecognitionTranscriber
 from src.interface_adapter.controllers.audio_transcriber_controller import AudioTranscriberController
-from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
+from src.interface_adapter.gateways.audio_transcriber_gateway import AudioTranscriberGateway
 from src.entities.audio_transcriber import AudioTranscription
 
 logger = get_logger("local-audio-transcriber")
 
-class LocalAudioTranscriber(AudioTranscriberUseCase):
+class LocalAudioTranscriber(AudioTranscriberGateway):
     "Transcriptor de audio local que usa Vosk (offline) y SpeechRecognition (Google, online) como fallback."
     def __init__(self, vosk_model_path: str = "model"):
         self.vosk_transcriber = VoskTranscriber(vosk_model_path)

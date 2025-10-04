@@ -3,10 +3,7 @@ Path: src/entities/audio_transcriber.py
 """
 
 class AudioTranscription:
-    """
-    Entidad que representa una transcripción de audio.
-    """
-
+    "Entidad que representa el resultado de una transcripción de audio."
     def __init__(self, text: str, source_path: str):
         self.text = text
         self.source_path = source_path
