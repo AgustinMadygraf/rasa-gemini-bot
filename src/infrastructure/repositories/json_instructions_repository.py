@@ -3,6 +3,7 @@ Path: src/infrastructure/repositories/json_instructions_repository.py
 """
 
 import json
+
 from src.shared.logger import get_logger
 
 logger = get_logger("json-instructions-repository")

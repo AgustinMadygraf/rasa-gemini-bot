@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 src/infrastructure/google_generative_ai/system_instructions.json
 .env
+model/
