@@ -4,45 +4,59 @@ Este proyecto integra un bot conversacional compatible con Rasa y Google Gemini,
 
 ## Requisitos
 
-- Python 3.8+
+- Python 3.8 o superior
 - [pip](https://pip.pypa.io/en/stable/)
-- [ffmpeg](https://ffmpeg.org/) (para pydub)
 - Modelos de Vosk (para transcripción offline)
 
 ## Instalación
 
 1. **Clona el repositorio**  
    ```sh
-   git clone https://github.com/tu_usuario/rasa-gemini-bot.git
+   git clone https://github.com/AgustinMadyraf/rasa-gemini-bot.git
    cd rasa-gemini-bot
    ```
 
 2. **Crea y activa un entorno virtual**  
    ```sh
    python -m venv venv
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
    .\venv\Scripts\activate
    ```
 
 3. **Instala las dependencias**  
    ```sh
+   python -m pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
-4. **Instala ffmpeg**  
-   Descarga desde [ffmpeg.org](https://ffmpeg.org/download.html) y agrega el ejecutable a tu variable de entorno `PATH`.
+4. **Configura el archivo `.env`**  
+   Copia el archivo de ejemplo y renómbralo a `.env`.  
+   Asegúrate de completar las variables necesarias.
+   ```sh
+   copy .env.example .env
+   ```
 
-5. **Descarga un modelo de Vosk**  
-   Ejemplo para español:
+5. **Obtén tus credenciales de Google Gemini:**  
+   Regístrate en [Google AI Studio](https://aistudio.google.com/app/apikey) y genera una API Key.  
+   Luego, copia tu clave en la variable `GOOGLE_GEMINI_API_KEY` dentro del archivo `.env`.
+
+6. **Configura las instrucciones del sistema:**  
+   Copia el archivo de ejemplo de instrucciones del sistema (`system_instructions.json`) en la ruta indicada por `SYSTEM_INSTRUCTIONS_PATH` en tu `.env`.  
+   Personaliza su contenido según las necesidades de tu bot.
+
+7. **Descarga un modelo de Vosk**  
+   Por ejemplo, para español:
    ```powershell
-   Invoke-WebRequest -Uri "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip" -OutFile "model/vosk-model-small-es-0.42.zip"
+   Invoke-WebRequest -Uri "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip" -OutFile "vosk-model-small-es-0.42.zip"
    Expand-Archive vosk-model-small-es-0.42.zip -DestinationPath model
    ```
+   Asegúrate de que el contenido del modelo quede directamente dentro de la carpeta `model/`.
 
 ## Uso
 
 ### Ejecutar el bot
 
-- **Modo Gemini (por defecto o con .env):**
+- **Modo Gemini:**
   ```sh
   python run.py --gemini
   ```
@@ -57,7 +71,9 @@ Este proyecto integra un bot conversacional compatible con Rasa y Google Gemini,
   python run.py --rasa
   ```
 
-### Transcribir un archivo de audio
+Si no se proporciona un argumento, el modo se tomará de la variable `MODE` definida en el archivo `.env`.
+
+### Transcribir un archivo de audio (experimental)
 
 ```sh
 python run_transcriber.py
@@ -69,8 +85,8 @@ Sigue las instrucciones para ingresar la ruta del archivo de audio.
 ```
 rasa-gemini-bot/
 │
-├─ run.py                  # Entry point principal
-├─ run_transcriber.py      # Transcriptor de audio CLI
+├─ run.py                  # Punto de entrada principal
+├─ run_transcriber.py      # Transcriptor de audio por CLI
 ├─ requirements.txt
 ├─ model/                  # Modelo Vosk descargado
 │
@@ -89,10 +105,10 @@ rasa-gemini-bot/
 
 ## Notas
 
-- Para usar la transcripción offline, asegúrate de que la carpeta `model/` contenga el modelo Vosk descomprimido.
-- Si el modelo no está disponible, se usará Google Speech Recognition (requiere Internet).
-- Configura tus variables en `.env` según sea necesario.
+- Para usar la transcripción offline, asegúrate de que la carpeta `model/` contenga el modelo Vosk descomprimido correctamente (sin subcarpetas intermedias).
+- Si el modelo no está disponible, se utilizará Google Speech Recognition (requiere conexión a Internet).
+- Configura tus variables en el archivo `.env` según sea necesario.
 
 ---
 
-¿Dudas o problemas? Abre un issue o consulta la documentación de cada dependencia.
+¿Tienes dudas o problemas? Abre un issue o consulta la documentación de las dependencias utilizadas.

@@ -25,19 +25,21 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
     """
 
     def __init__(self, vosk_model_path: str = "model"):
-        self.vosk_enabled = (
-            Model is not None and KaldiRecognizer is not None and os.path.isdir(vosk_model_path)
-        )
+        self.vosk_enabled = False
         self.vosk_model = None
-        if self.vosk_enabled:
-            try:
-                logger.info("Modelo Vosk encontrado en %s.", vosk_model_path)
+        try:
+            if Model is not None and KaldiRecognizer is not None and os.path.isdir(vosk_model_path):
+                logger.info("Intentando cargar modelo Vosk en %s.", vosk_model_path)
                 self.vosk_model = Model(vosk_model_path)
-            except (OSError, ValueError) as e:
-                logger.error("Error al cargar el modelo Vosk: %s", e)
-                self.vosk_enabled = False
-        else:
-            logger.warning("Vosk no está disponible o el modelo no se encontró.")
+                self.vosk_enabled = True
+                logger.info("Modelo Vosk cargado correctamente.")
+            else:
+                logger.warning("Vosk no está disponible o el modelo no se encontró.")
+        except Exception as e:
+            logger.error("Error al cargar el modelo Vosk: %s", e)
+            logger.warning("Se usará Google Speech Recognition como fallback.")
+            self.vosk_enabled = False
+            self.vosk_model = None
         self.recognizer = sr.Recognizer()
 
     def transcribe(self, audio_file_path: str) -> AudioTranscription:
