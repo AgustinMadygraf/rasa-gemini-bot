@@ -39,7 +39,7 @@ def main():
             logger.info("Iniciando FastAPI para Gemini...")
             import uvicorn
             uvicorn.run(
-                "src.infrastructure.fastapi.app:app",
+                "src.infrastructure.fastapi.app_fastapi:app",
                 host="0.0.0.0",
                 port=5005,
                 reload=True

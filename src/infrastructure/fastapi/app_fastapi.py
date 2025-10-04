@@ -1,5 +1,5 @@
 """
-Path: src/infrastructure/fastapi/app.py
+Path: src/infrastructure/fastapi/app_fastapi.py
 """
 
 from collections import defaultdict
