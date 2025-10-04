@@ -53,7 +53,7 @@ def main():
         logger.exception("Error al ejecutar el subproceso para el modo %s: %s", mode, e)
     except ImportError as e:
         logger.exception("Error de importación en el modo %s: %s", mode, e)
-    except (OSError, RuntimeError, ValueError) as e:  # Captura errores comunes esperados
+    except (OSError, RuntimeError, ValueError) as e:
         logger.exception("Error ejecutando el modo %s: %s", mode, e)
 
 if __name__ == "__main__":

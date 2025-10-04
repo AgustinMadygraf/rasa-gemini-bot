@@ -29,15 +29,16 @@ def create_app(mode="GOOGLE_GEMINI"):
 
     # --- SOLO SE EJECUTA SI NO ES ESPEJO ---
     from src.shared.config import get_config
+
     from src.infrastructure.google_generative_ai.gemini_service import GeminiService
-    from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
-    from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
     from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
     from src.infrastructure.audio.local_audio_transcriber import LocalAudioTranscriber
+    from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
     from src.interface_adapter.gateways.audio_transcriber_gateway import AudioTranscriberGateway
-    from src.use_cases.generate_gemini_response_with_audio import GenerateGeminiResponseWithAudioUseCase
     from src.interface_adapter.controllers.gemini_controller import GeminiController
     from src.interface_adapter.presenters.gemini_presenter import GeminiPresenter
+    from src.use_cases.generate_gemini_response_with_audio import GenerateGeminiResponseWithAudioUseCase
+    from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
 
     config = get_config()
 

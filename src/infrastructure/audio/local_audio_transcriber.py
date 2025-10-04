@@ -7,11 +7,12 @@ import speech_recognition as sr
 
 from src.shared.logger import get_logger
 
-from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
 
-from src.entities.audio_transcriber import AudioTranscription
 from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
 from src.infrastructure.audio.pydub.pydub_converter import PydubConverter
+from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
+from src.entities.audio_transcriber import AudioTranscription
+
 
 logger = get_logger("local-audio-transcriber")
 
@@ -26,6 +27,7 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
         self.recognizer = sr.Recognizer()
 
     def transcribe(self, audio_file_path: str) -> AudioTranscription:
+        "Transcribe el archivo de audio especificado"
         logger.info("Iniciando transcripción para: %s", audio_file_path)
         if not os.path.isfile(audio_file_path):
             logger.error("El archivo %s no existe.", audio_file_path)

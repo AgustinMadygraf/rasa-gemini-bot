@@ -2,8 +2,8 @@
 Path: src/use_cases/generate_gemini_response_with_audio.py
 """
 
-from src.entities.gemini_response import GeminiResponse
 from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
+from src.entities.gemini_response import GeminiResponse
 
 class GenerateGeminiResponseWithAudioUseCase:
     "Caso de uso para generar respuestas"
