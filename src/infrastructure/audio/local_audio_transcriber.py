@@ -4,8 +4,6 @@ Path: src/infrastructure/audio/local_audio_transcriber.py
 
 import os
 import speech_recognition as sr
-from pydub import AudioSegment
-from pydub.exceptions import CouldntDecodeError
 
 from src.shared.logger import get_logger
 
@@ -13,6 +11,7 @@ from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
 
 from src.entities.audio_transcriber import AudioTranscription
 from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
+from src.infrastructure.audio.pydub.pydub_converter import PydubConverter
 
 logger = get_logger("local-audio-transcriber")
 
@@ -38,9 +37,12 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
         wav_path = audio_file_path + ".wav"
         try:
             logger.debug("Convirtiendo %s a WAV temporal: %s", audio_file_path, wav_path)
-            audio = AudioSegment.from_file(audio_file_path)
-            audio.export(wav_path, format="wav")
-        except (FileNotFoundError, CouldntDecodeError, OSError, ValueError, TypeError) as e:
+            if not PydubConverter.to_wav(audio_file_path, wav_path):
+                return AudioTranscription(
+                    text=f"Error en la conversión: No se pudo convertir {audio_file_path} a WAV.",
+                    source_path=audio_file_path
+                )
+        except (FileNotFoundError, OSError, ValueError, TypeError) as e:
             logger.error("Error en la conversión a WAV: %s", e)
             return AudioTranscription(
                 text=f"Error en la conversión: {e}",
