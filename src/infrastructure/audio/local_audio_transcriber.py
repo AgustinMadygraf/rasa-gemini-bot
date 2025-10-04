@@ -3,10 +3,7 @@ Path: src/infrastructure/audio/local_audio_transcriber.py
 """
 
 import os
-import wave
-import json
 import speech_recognition as sr
-from vosk import Model, KaldiRecognizer
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
@@ -15,6 +12,7 @@ from src.shared.logger import get_logger
 from src.use_cases.audio_transcriber_use_case import AudioTranscriberUseCase
 
 from src.entities.audio_transcriber import AudioTranscription
+from src.infrastructure.audio.vosk.vosk_transcriber import VoskTranscriber
 
 logger = get_logger("local-audio-transcriber")
 
@@ -25,21 +23,7 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
     """
 
     def __init__(self, vosk_model_path: str = "model"):
-        self.vosk_enabled = False
-        self.vosk_model = None
-        try:
-            if Model is not None and KaldiRecognizer is not None and os.path.isdir(vosk_model_path):
-                logger.info("Intentando cargar modelo Vosk en %s.", vosk_model_path)
-                self.vosk_model = Model(vosk_model_path)
-                self.vosk_enabled = True
-                logger.info("Modelo Vosk cargado correctamente.")
-            else:
-                logger.warning("Vosk no está disponible o el modelo no se encontró.")
-        except Exception as e:
-            logger.error("Error al cargar el modelo Vosk: %s", e)
-            logger.warning("Se usará Google Speech Recognition como fallback.")
-            self.vosk_enabled = False
-            self.vosk_model = None
+        self.vosk_transcriber = VoskTranscriber(vosk_model_path)
         self.recognizer = sr.Recognizer()
 
     def transcribe(self, audio_file_path: str) -> AudioTranscription:
@@ -63,40 +47,13 @@ class LocalAudioTranscriber(AudioTranscriberUseCase):
                 source_path=audio_file_path
             )
 
-        text = None
-
         # Intentar con Vosk (offline)
-        if self.vosk_enabled and self.vosk_model is not None:
-            try:
-                logger.info("Intentando transcripción offline con Vosk...")
-                wf = wave.open(wav_path, "rb")
-                if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
-                    logger.debug("Ajustando WAV a formato PCM 16bit mono para Vosk.")
-                    audio = AudioSegment.from_wav(wav_path).set_channels(1).set_sample_width(2)
-                    audio.export(wav_path, format="wav")
-                    wf = wave.open(wav_path, "rb")
-                rec = KaldiRecognizer(self.vosk_model, wf.getframerate())
-                vosk_result = ""
-                while True:
-                    data = wf.readframes(4000)
-                    if len(data) == 0:
-                        break
-                    if rec.AcceptWaveform(data):
-                        vosk_result += rec.Result()
-                vosk_result += rec.FinalResult()
-                result_json = json.loads(vosk_result.split('\n')[-2] if '\n' in vosk_result else vosk_result)
-                text = result_json.get("text", "").strip()
-                if not text:
-                    logger.warning("Vosk no pudo transcribir el audio.")
-                    text = "Vosk no pudo transcribir el audio."
-                else:
-                    logger.info("Transcripción exitosa con Vosk.")
-            except (OSError, ValueError, json.JSONDecodeError) as e:
-                logger.error("Error usando Vosk: %s", e)
-                text = f"Error usando Vosk: {e}"
+        text = None
+        if self.vosk_transcriber.vosk_enabled:
+            text = self.vosk_transcriber.transcribe(wav_path)
 
         # Si Vosk falla o no está disponible, usar Google (requiere Internet)
-        if not text or text.startswith("Error usando Vosk"):
+        if not text or (isinstance(text, str) and text.startswith("Error usando Vosk")):
             try:
                 logger.info("Intentando transcripción online con Google Speech Recognition...")
                 with sr.AudioFile(wav_path) as source:

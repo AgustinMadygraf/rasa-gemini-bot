@@ -33,6 +33,11 @@ def create_app(mode="GOOGLE_GEMINI"):
     from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
     from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
     from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
+    from src.infrastructure.audio.local_audio_transcriber import LocalAudioTranscriber
+    from src.interface_adapter.gateways.audio_transcriber_gateway import AudioTranscriberGateway
+    from src.use_cases.generate_gemini_response_with_audio import GenerateGeminiResponseWithAudioUseCase
+    from src.interface_adapter.controllers.gemini_controller import GeminiController
+    from src.interface_adapter.presenters.gemini_presenter import GeminiPresenter
 
     config = get_config()
 
@@ -55,47 +60,68 @@ def create_app(mode="GOOGLE_GEMINI"):
     # Memoria simple en RAM: {sender_id: [mensajes]}
     conversation_memory = defaultdict(list)
 
+    # Instanciar infraestructura de transcripción
+    local_transcriber = LocalAudioTranscriber(vosk_model_path="model")
+    audio_transcriber_gateway = AudioTranscriberGateway(local_transcriber)
+
+    # Caso de uso orquestador
+    generate_response_use_case = GenerateGeminiResponseWithAudioUseCase(
+        gemini_responder=gemini,
+        audio_transcriber=audio_transcriber_gateway
+    )
+
+    # Controlador desacoplado
+    gemini_controller = GeminiController(generate_response_use_case)
+
     @fastapi_app.post("/webhooks/rest/webhook")
     async def rasa_compatible_webhook(request: Request):
         """
         Endpoint compatible con el API REST de Rasa.
-        Espera: {"sender": "user", "message": "texto"}
-        Devuelve: [{"recipient_id": "user", "text": "respuesta"}]
+        Ahora acepta texto o audio (multipart/form-data).
         """
         try:
-            data = await request.json()
-            prompt = data.get("message", "")
-            sender = data.get("sender", "user")
+            # Detectar si es multipart (audio) o JSON (texto)
+            if request.headers.get("content-type", "").startswith("multipart"):
+                form = await request.form()
+                audio_file = form.get("audio")
+                sender = form.get("sender", "user")
+                prompt = form.get("message", "")
+                audio_path = None
+                if audio_file:
+                    audio_path = f"/tmp/{audio_file.filename}"
+                    with open(audio_path, "wb") as f:
+                        f.write(await audio_file.read())
+            else:
+                data = await request.json()
+                prompt = data.get("message", "")
+                sender = data.get("sender", "user")
+                audio_path = None
 
-            logger.info("Mensaje recibido de %s: %s", sender, prompt)
-
-            # Guardar el mensaje del usuario en la memoria
-            conversation_memory[sender].append(f"Usuario: {prompt}")
+            # Guardar el mensaje del usuario en la memoria (opcional)
+            conversation_memory[sender].append(f"Usuario: {prompt or '[audio]'}")
 
             # Construir historial para enviar al modelo (últimos 10 mensajes)
             history = "\n".join(conversation_memory[sender][-10:])
-
-            # Opcional: puedes agregar instrucciones de sistema aquí
             prompt_with_history = f"{history}\nGemini:"
 
-            # Usar las instrucciones de sistema cargadas por el caso de uso
-            response_text = gemini.get_response(prompt_with_history, system_instructions)
+            # Llamar al controlador
+            gemini_response = gemini_controller.handle_message(
+                prompt=prompt_with_history if not audio_path else None,
+                audio_file_path=audio_path,
+                _sender=sender,
+                system_instructions=system_instructions
+            )
 
             # Guardar la respuesta del bot en la memoria
-            conversation_memory[sender].append(f"Gemini: {response_text}")
+            conversation_memory[sender].append(f"Gemini: {gemini_response.text}")
 
-            logger.info("Respuesta enviada a %s: %s", sender, response_text)
+            # Presentar la respuesta
+            response = GeminiPresenter.to_rasa_response(gemini_response, sender)
 
-            return JSONResponse([{"recipient_id": sender, "text": response_text}])
-        except ValueError as e:
-            logger.error("ValueError: %s", e)
-            return JSONResponse([{"recipient_id": "user", "text": f"[ValueError: {e}]"}], status_code=400)
-        except KeyError as e:
-            logger.error("KeyError: %s", e)
-            return JSONResponse([{"recipient_id": "user", "text": f"[KeyError: {e}]"}], status_code=400)
-        except TypeError as e:
-            logger.error("TypeError: %s", e)
-            return JSONResponse([{"recipient_id": "user", "text": f"[TypeError: {e}]"}], status_code=400)
+            return JSONResponse(response)
+        except (ValueError, KeyError, TypeError, IOError) as e:
+            logger.error("Error en el webhook: %s", e)
+            return JSONResponse([{"recipient_id": "user", "text": f"[Error: {e}]"}], status_code=400)
 
     return fastapi_app
 

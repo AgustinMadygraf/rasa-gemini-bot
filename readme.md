@@ -49,6 +49,8 @@ Este proyecto integra un bot conversacional compatible con Rasa y Google Gemini,
    ```powershell
    Invoke-WebRequest -Uri "https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip" -OutFile "vosk-model-small-es-0.42.zip"
    Expand-Archive vosk-model-small-es-0.42.zip -DestinationPath model
+   # IMPORTANTE: Mueve el contenido de la subcarpeta a 'model/' si es necesario:
+   Remove-Item -Recurse -Force models\vosk-model-small-es-0.42
    ```
    Asegúrate de que el contenido del modelo quede directamente dentro de la carpeta `model/`.
 
