@@ -2,29 +2,35 @@ version: "3.1"
 
 stories:
 
-- story: happy path
+- story: camini feliz 1
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - intent: saludo
+  - action: utter_saludo
+  - intent: estado_genial
+  - action: utter_ofrecer_ayuda
 
-- story: sad path 1
+- story: camino triste 1
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - intent: saludo
+  - action: utter_saludo
+  - intent: estado_triste
 
-- story: sad path 2
+
+- story: usuario fuera de contexto
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - intent: out_of_scope
+  - action: utter_out_of_scope   # Muestra respuesta didáctica
+
+- story: baja confianza
+  steps:
+  - intent: fallback
+  - action: utter_fallback       # Solicita reformulación
+
+- story: camino feliz asistencia
+  steps:
+  - intent: saludo
+  - action: utter_saludo
+  - intent: estado_genial
+  - action: utter_ofrecer_ayuda
+  - intent: asistencia_tecnica
+  - action: utter_asistencia_tecnica   # Nueva respuesta específica

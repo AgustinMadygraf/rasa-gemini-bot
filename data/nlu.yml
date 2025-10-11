@@ -1,91 +1,122 @@
 version: "3.1"
 
 nlu:
-- intent: greet
+- intent: saludo
   examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+    - hola
+    - buenas
+    - qué tal
+    - hola, ¿qué tal?
+    - buenos días
+    - buenas tardes
+    - buenas noches
+    - hola a todos
+    - vamos allá
+    - hola amigo
+    - buen día
+    - buena tarde
+    - buen día a todos
 
-- intent: goodbye
+- intent: despedida
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - hasta luego
+    - adiós
+    - nos vemos luego
+    - buenas noches
+    - chao
+    - hasta pronto
+    - que tengas un buen día
+    - nos vemos
+    - adiós adiós
+    - hasta la próxima
 
-- intent: affirm
+- intent: afirmar
   examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+    - sí
+    - claro
+    - por supuesto
+    - correcto
+    - eso suena bien
+    - de acuerdo
 
-- intent: deny
+- intent: negar
   examples: |
     - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - nunca
+    - no lo creo
+    - no me gusta eso
+    - de ninguna manera
+    - no realmente
 
-- intent: mood_great
+- intent: estado_genial
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
+    - perfecto
+    - genial
+    - increíble
+    - me siento como un rey
+    - maravilloso
+    - me siento muy bien
+    - estoy genial
+    - estoy increíble
+    - voy a salvar el mundo
+    - súper emocionado
+    - extremadamente bien
+    - todo perfecto
+    - muy bien
+    - tan perfecto
+    - estoy bien, y vos?
+    - bien, ¿y tú?
+    - estoy bien
+    - todo bien
+    - bien
 
-- intent: mood_unhappy
+- intent: estado_triste
   examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    - mi día fue horrible
+    - estoy triste
+    - no me siento muy bien
+    - estoy decepcionado
+    - súper triste
+    - estoy muy triste
+    - triste
+    - muy triste
+    - infeliz
+    - no estoy bien
+    - no muy bien
+    - extremadamente triste
+    - tan triste
 
-- intent: bot_challenge
+- intent: desafio_bot
   examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - ¿eres un bot?
+    - ¿eres humano?
+    - ¿estoy hablando con un bot?
+    - ¿estoy hablando con un humano?
+
+- intent: out_of_scope
+  examples: |
+    - ¿cuál es el clima?
+    - cuéntame un chiste
+    - ¿quién es el presidente?
+    - háblame de fútbol
+    - ¿puedes pedir una pizza?
+    - ¿cuánto cuesta un coche?
+    - ¿me recomiendas una película?
+
+- intent: fallback
+  examples: |
+    - asdfghjkl
+    - qwertyuiop
+    - [mensaje sin sentido]
+    - [palabras aleatorias]
+    - ¿?¿?¿?¿?
+
+- intent: asistencia_tecnica
+  examples: |
+    - asistencia técnica para instalar RASA en mi PC
+    - quiero instalar Rasa en mi computadora
+    - ¿cómo instalo Rasa?
+    - ayuda para instalar Rasa
+    - necesito soporte para instalar Rasa
+    - ¿me explicas cómo instalar Rasa?
+    - ¿puedes ayudarme a instalar Rasa?

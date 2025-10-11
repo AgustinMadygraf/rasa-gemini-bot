@@ -2,12 +2,22 @@ version: "3.1"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Decir adiós cada vez que el usuario se despida
   steps:
-  - intent: goodbye
-  - action: utter_goodbye
+  - intent: despedida
+  - action: utter_despedida
 
-- rule: Say 'I am a bot' anytime the user challenges
+- rule: Decir 'Soy un bot' cada vez que el usuario desafíe
   steps:
-  - intent: bot_challenge
-  - action: utter_iamabot
+  - intent: desafio_bot
+  - action: utter_yosoyunbot
+
+- rule: Manejar mensajes fuera de contexto
+  steps:
+  - intent: out_of_scope
+  - action: utter_out_of_scope   # Explica que solo responde sobre Rasa
+
+- rule: Manejar baja confianza
+  steps:
+  - intent: fallback
+  - action: utter_fallback       # Solicita reformulación

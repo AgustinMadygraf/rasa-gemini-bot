@@ -37,7 +37,10 @@ source venv/bin/activate
 ## 3. Instala las dependencias
 
 ```bash
+python.exe -m pip install --upgrade pip
+python -m pip install -U pip setuptools wheel
 pip install -r requirements.txt
+python -m pip install rasa
 ```
 
 Esto instalará todos los paquetes necesarios, incluyendo Rasa, FastAPI, el SDK de Google Gemini y otras dependencias.

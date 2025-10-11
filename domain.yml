@@ -1,33 +1,44 @@
 version: "3.1"
 
 intents:
-  - greet
-  - goodbye
-  - affirm
-  - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - saludo
+  - despedida
+  - afirmar
+  - negar
+  - estado_genial
+  - estado_triste
+  - desafio_bot
+  - out_of_scope
+  - fallback
+  - asistencia_tecnica    # Nuevo intent para consultas técnicas sobre Rasa
 
 responses:
-  utter_greet:
-  - text: "Hey! How are you?"
+  utter_saludo:
+  - text: "¡Hola! ¿Cómo estás?"
 
   utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
+  - text: "Espero que te sientas mejor pronto."
 
   utter_did_that_help:
-  - text: "Did that help you?"
+  - text: "¿Eso te ayudó?"
 
-  utter_happy:
-  - text: "Great, carry on!"
+  utter_despedida:
+  - text: "Adiós"
 
-  utter_goodbye:
-  - text: "Bye"
+  utter_yosoyunbot:
+  - text: "Soy un bot, impulsado por Rasa."
 
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  utter_out_of_scope:   # Respuesta para mensajes fuera de contexto
+  - text: "Lo siento, no puedo ayudarte con eso. ¿Quieres saber algo sobre Rasa?"
+
+  utter_fallback:       # Respuesta para baja confianza
+  - text: "No entendí tu mensaje. ¿Puedes reformularlo o preguntar sobre Rasa?"
+
+  utter_ofrecer_ayuda:   # Nueva respuesta para ofrecer asistencia técnica/capacitación
+  - text: "Bien, ¿En qué te puedo ayudar? ¿Asistencia técnica para Rasa o capacitaciones?"
+
+  utter_asistencia_tecnica:   # Nueva respuesta para asistencia técnica
+  - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC. ¿Qué sistema operativo usas?"
 
 session_config:
   session_expiration_time: 60
