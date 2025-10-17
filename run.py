@@ -14,21 +14,29 @@ def main():
     " Determina el modo y lanza la aplicación correspondiente."
     logger.debug("Argumentos recibidos: %s", sys.argv)
     mode = None
-    # Detecta argumento de línea de comandos
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--rasa":
+
+    # Verifica argumento tipo mode=xxx
+    for arg in sys.argv[1:]:
+        if arg.startswith("mode="):
+            mode = arg.split("=", 1)[1].upper()
+            break
+        elif arg == "--rasa":
             mode = "RASA"
-        elif sys.argv[1] == "--gemini":
+            break
+        elif arg == "--gemini":
             mode = "GOOGLE_GEMINI"
-        elif sys.argv[1] == "--espejo":
+            break
+        elif arg == "--espejo":
             mode = "ESPEJO"
+            break
         else:
-            logger.warning("Argumento desconocido: %s", sys.argv[1])
+            logger.warning("Argumento desconocido: %s", arg)
+
     # Si no hay argumento, usa .env
     if not mode:
         config = get_config()
         logger.debug("Configuración cargada desde .env: %s", config)
-        mode = config.get("MODE").upper()
+        mode = config.get("MODE", "RASA").upper()
     logger.info("Modo seleccionado: %s", mode)
 
     try:

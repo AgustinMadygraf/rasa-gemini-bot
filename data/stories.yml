@@ -26,7 +26,7 @@ stories:
   - intent: fallback
   - action: utter_fallback       # Solicita reformulación
 
-- story: camino feliz asistencia
+- story: asistencia tecnica despues de saludo
   steps:
   - intent: saludo
   - action: utter_saludo
@@ -34,3 +34,11 @@ stories:
   - action: utter_ofrecer_ayuda
   - intent: asistencia_tecnica
   - action: utter_asistencia_tecnica   # Nueva respuesta específica
+
+- story: instalar rasa verificar git
+  steps:
+  - intent: asistencia_tecnica
+  - action: instalar_rasa_form
+  - action: utter_preguntar_git
+  - intent: informar_git
+  - action: utter_confirmar_git

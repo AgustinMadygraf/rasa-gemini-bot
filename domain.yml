@@ -10,7 +10,8 @@ intents:
   - desafio_bot
   - out_of_scope
   - fallback
-  - asistencia_tecnica    # Nuevo intent para consultas técnicas sobre Rasa
+  - asistencia_tecnica
+  - informar_git
 
 responses:
   utter_saludo:
@@ -28,18 +29,38 @@ responses:
   utter_yosoyunbot:
   - text: "Soy un bot, impulsado por Rasa."
 
-  utter_out_of_scope:   # Respuesta para mensajes fuera de contexto
+  utter_out_of_scope:
   - text: "Lo siento, no puedo ayudarte con eso. ¿Quieres saber algo sobre Rasa?"
 
-  utter_fallback:       # Respuesta para baja confianza
+  utter_fallback:
   - text: "No entendí tu mensaje. ¿Puedes reformularlo o preguntar sobre Rasa?"
 
-  utter_ofrecer_ayuda:   # Nueva respuesta para ofrecer asistencia técnica/capacitación
+  utter_ofrecer_ayuda:
   - text: "Bien, ¿En qué te puedo ayudar? ¿Asistencia técnica para Rasa o capacitaciones?"
 
-  utter_asistencia_tecnica:   # Nueva respuesta para asistencia técnica
+  utter_asistencia_tecnica:
   - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC. ¿Qué sistema operativo usas?"
+
+  utter_preguntar_git:
+  - text: "Antes de instalar Rasa, necesitamos verificar si tienes Git instalado. ¿Ya tienes Git en tu sistema?"
+
+  utter_confirmar_git:
+  - text: "Gracias por la información sobre Git. Ahora podemos continuar con la instalación de Rasa."
 
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
+
+slots:
+  git_instalado:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: git_instalado
+      - type: from_text
+
+forms:
+  instalar_rasa_form:
+    required_slots:
+      - git_instalado

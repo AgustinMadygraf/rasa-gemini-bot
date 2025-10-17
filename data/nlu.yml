@@ -1,6 +1,18 @@
 version: "3.1"
 
 nlu:
+- intent: despedida
+  examples: |
+    - hasta luego
+    - adiós
+    - nos vemos luego
+    - chao
+    - hasta pronto
+    - que tengas un buen día
+    - nos vemos
+    - adiós adiós
+    - hasta la próxima
+
 - intent: saludo
   examples: |
     - hola
@@ -16,19 +28,6 @@ nlu:
     - buen día
     - buena tarde
     - buen día a todos
-
-- intent: despedida
-  examples: |
-    - hasta luego
-    - adiós
-    - nos vemos luego
-    - buenas noches
-    - chao
-    - hasta pronto
-    - que tengas un buen día
-    - nos vemos
-    - adiós adiós
-    - hasta la próxima
 
 - intent: afirmar
   examples: |
@@ -47,6 +46,17 @@ nlu:
     - no me gusta eso
     - de ninguna manera
     - no realmente
+
+- intent: informar_git
+  examples: |
+    - sí, tengo Git instalado
+    - no, no tengo Git
+    - no sé si tengo Git
+    - creo que sí tengo Git
+    - no estoy seguro si tengo Git
+    - acabo de instalar Git
+    - nunca instalé Git
+    - ¿cómo sé si tengo Git?
 
 - intent: estado_genial
   examples: |

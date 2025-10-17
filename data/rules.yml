@@ -21,8 +21,3 @@ rules:
   steps:
   - intent: fallback
   - action: utter_fallback       # Solicita reformulación
-
-- rule: Responder asistencia técnica
-  steps:
-  - intent: asistencia_tecnica
-  - action: utter_asistencia_tecnica   # Garantiza respuesta directa
