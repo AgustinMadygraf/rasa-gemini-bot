@@ -24,6 +24,7 @@ O descarga y descomprime el archivo ZIP desde el repositorio.
 ```bash
 python --version # debe ser 3.10
 python -m venv venv
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 venv\Scripts\activate
 ```
 
