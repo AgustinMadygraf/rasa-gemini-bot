@@ -29,6 +29,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 venv\Scripts\activate
 ```
 
+https://www.python.org/downloads/release/python-31011/
+
 ### macOS/Linux
 
 ```bash
