@@ -20,6 +20,9 @@ responses:
   utter_cheer_up:
   - text: "Espero que te sientas mejor pronto."
 
+  utter_did_that_help:
+  - text: "¿Te ayudó eso?"
+
   utter_despedida:
   - text: "Adiós"
 
@@ -36,16 +39,16 @@ responses:
   - text: "Bien, ¿En qué te puedo ayudar? ¿Asistencia técnica para Rasa o capacitaciones?"
 
   utter_asistencia_tecnica:
-  - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC. ¿Qué sistema operativo usas?"
+  - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC."
 
-  utter_preguntar_git:
+  utter_ask_git_instalado:
   - text: "Antes de instalar Rasa, necesitamos verificar si tienes Git instalado. ¿Ya tienes Git en tu sistema?"
 
   utter_confirmar_git:
   - text: "Gracias por la información sobre Git. Ahora podemos continuar con la instalación de Rasa."
 
-  utter_did_that_help:
-  - text: "¿Te ayudó eso?"
+actions:
+  - validate_instalar_rasa_form
 
 session_config:
   session_expiration_time: 60
@@ -56,9 +59,10 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: git_instalado
       - type: from_text
+        conditions:
+          - active_loop: instalar_rasa_form
+            requested_slot: git_instalado
 
 forms:
   instalar_rasa_form:
