@@ -1,34 +1,6 @@
 """
-Path: actions/actions.py
+Path: src/infrastructure/rasa/actions/actions.py
 """
-
-# This files contains your custom actions which can be used to run
-# custom Python code.
-#
-# See this guide on how to implement these action:
-# https://rasa.com/docs/rasa/custom-actions
-
-
-# This is a simple example for a custom action which utters "Hello World!"
-
-# from typing import Any, Text, Dict, List
-#
-# from rasa_sdk import Action, Tracker
-# from rasa_sdk.executor import CollectingDispatcher
-#
-#
-# class ActionHelloWorld(Action):
-#
-#     def name(self) -> Text:
-#         return "action_hello_world"
-#
-#     def run(self, dispatcher: CollectingDispatcher,
-#             tracker: Tracker,
-#             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-#
-#         dispatcher.utter_message(text="Hello World!")
-#
-#         return []
 
 from typing import Any, Text, Dict, List
 from rasa_sdk import Tracker, FormValidationAction
@@ -36,11 +8,12 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 
 class ProyectoEntity:
-    """Entidad que representa el estado del proyecto"""
+    "Entidad que representa el estado del proyecto"
     def __init__(self, esta_descargado: bool = False):
         self.esta_descargado = esta_descargado
 
     def necesita_descarga(self) -> bool:
+        "Verifica si el proyecto necesita ser descargado"
         return not self.esta_descargado
 
 class GitEntity:
@@ -49,10 +22,11 @@ class GitEntity:
         self.esta_instalado = esta_instalado
 
     def puede_clonar(self) -> bool:
+        "Verifica si Git está instalado para poder clonar repositorios"
         return self.esta_instalado
 
 class ValidateInstalarRasaForm(FormValidationAction):
-    " Validates the instalar_rasa_form form"
+    "Validates the instalar_rasa_form form"
     def name(self) -> Text:
         return "validate_instalar_rasa_form"
 
@@ -65,22 +39,22 @@ class ValidateInstalarRasaForm(FormValidationAction):
     ) -> List[Text]:
         # Primero preguntamos por el proyecto, luego por Git
         return ["proyecto_descargado", "git_instalado"]
-    
+
     async def extract_proyecto_descargado(
         self, _dispatcher: CollectingDispatcher, tracker: Tracker, _domain: Dict
     ) -> Dict[Text, Any]:
-        " Extrae el valor del slot proyecto_descargado basado en la intención del usuario"
+        "Extrae el valor del slot proyecto_descargado basado en la intención del usuario"
         intent = tracker.latest_message.get("intent", {}).get("name")
-        
+
         if intent == "afirmar":
             # Verificar si el mensaje contiene indicios de que SÍ tiene el proyecto
             text = tracker.latest_message.get("text", "").lower()
             if any(word in text for word in ["sí", "si", "tengo", "descargado", "ya", "claro"]):
                 return {"proyecto_descargado": "si"}
-        
+
         if intent == "negar":
             return {"proyecto_descargado": "no"}
-        
+
         # Si menciona el proyecto específicamente
         text = tracker.latest_message.get("text", "").lower()
         if "messenger" in text or "bridge" in text or "proyecto" in text:
@@ -88,9 +62,9 @@ class ValidateInstalarRasaForm(FormValidationAction):
                 return {"proyecto_descargado": "no"}
             else:
                 return {"proyecto_descargado": "si"}
-        
+
         return {}
-    
+
     async def validate_proyecto_descargado(
         self,
         slot_value: Any,
@@ -98,21 +72,21 @@ class ValidateInstalarRasaForm(FormValidationAction):
         tracker: Tracker,
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
-        " Valida el valor del slot proyecto_descargado usando la entidad ProyectoEntity"
+        "Valida el valor del slot proyecto_descargado usando la entidad ProyectoEntity"
         proyecto = ProyectoEntity(esta_descargado=slot_value.lower() == "si")
-        
+
         if proyecto.necesita_descarga():
             # Verificar si Git está instalado
             git_value = tracker.get_slot("git_instalado")
             git = GitEntity(esta_instalado=git_value == "si" if git_value else False)
-            
+
             if git.puede_clonar():
                 dispatcher.utter_message(response="utter_guia_clonar_proyecto")
             else:
                 dispatcher.utter_message(text="Primero necesitarás instalar Git para poder descargar el proyecto.")
-        
+
         return {"proyecto_descargado": slot_value}
-    
+
     async def extract_git_instalado(
         self, _dispatcher: CollectingDispatcher, tracker: Tracker, _domain: Dict
     ) -> Dict[Text, Any]:
@@ -145,5 +119,5 @@ class ValidateInstalarRasaForm(FormValidationAction):
         _tracker: Tracker,
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
-        " Valida el valor del slot git_instalado "
+        "Valida el valor del slot git_instalado"
         return {"git_instalado": slot_value}

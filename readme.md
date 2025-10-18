@@ -50,6 +50,11 @@ Rasa Gemini Bot es un motor conversacional flexible que combina la estructura de
    - Modo Gemini: `python run.py --gemini`
    - Modo Espejo: `python run.py --espejo`
    - O simplemente: `python run.py` (usará el modo configurado en .env)
+6. **Inicia el servidor de acciones**:
+   - Las acciones personalizadas están en `src/infrastructure/rasa/actions/`, usa:
+     ```bash
+     rasa run actions --actions src.infrastructure.rasa.actions
+     ```
 
 Consulta la [guía de instalación](docs/installation.md) para más detalles.
 

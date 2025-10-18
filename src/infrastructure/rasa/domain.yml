@@ -42,13 +42,13 @@ responses:
   - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC."
 
   utter_ask_git_instalado:
-  - text: "Antes de instalar Rasa, necesitamos verificar si tienes Git instalado. ¿Ya tienes Git en tu sistema?"
+  - text: "¿Tienes Git instalado en tu sistema?"
 
   utter_confirmar_git:
   - text: "Gracias por la información sobre Git. Ahora podemos continuar con la instalación de Rasa."
 
   utter_ask_proyecto_descargado:
-  - text: "¿Ya tienes descargado el proyecto messenger-bridge de GitHub (https://github.com/AgustinMadygraf/messenger-bridge)?"
+  - text: "¿Ya tienes descargado el proyecto messenger-bridge de GitHub?"
 
   utter_guia_clonar_proyecto:
   - text: "Vamos a descargar el proyecto usando Git. Ejecuta el siguiente comando en tu terminal: git clone https://github.com/AgustinMadygraf/messenger-bridge"
