@@ -4,6 +4,8 @@ Punto de entrada para lanzar la aplicación FastAPI o Rasa según argumento o .e
 
 import sys
 import subprocess
+import os
+from pathlib import Path
 
 from src.shared.config import get_config
 from src.shared.logger import get_logger
@@ -42,10 +44,17 @@ def main():
     try:
         if mode == "RASA":
             logger.info("Iniciando Rasa como subproceso...")
+            # Nueva ruta para los archivos de Rasa
+            rasa_dir = Path("src/infrastructure/rasa")
+
+            # Cambiar al directorio de Rasa para la ejecución
+            os.chdir(rasa_dir)
             subprocess.run(["rasa", "run", "--enable-api"], check=True)
+
+            # Volver al directorio original después de la ejecución
+            os.chdir(Path(rasa_dir).parent.parent.parent)
         elif mode in ("GOOGLE_GEMINI", "ESPEJO"):
             logger.info("Iniciando FastAPI en modo %s...", mode)
-            import os
             os.environ["APP_MODE"] = mode
             import uvicorn
             uvicorn.run(
