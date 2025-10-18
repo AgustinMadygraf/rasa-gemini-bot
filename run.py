@@ -16,41 +16,60 @@ def main():
     " Determina el modo y lanza la aplicación correspondiente."
     logger.debug("Argumentos recibidos: %s", sys.argv)
     mode = None
+    train_model = False
 
-    # Verifica argumento tipo mode=xxx
+    # Verifica argumento tipo mode=xxx o --train
     for arg in sys.argv[1:]:
         if arg.startswith("mode="):
             mode = arg.split("=", 1)[1].upper()
-            break
         elif arg == "--rasa":
             mode = "RASA"
-            break
         elif arg == "--gemini":
             mode = "GOOGLE_GEMINI"
-            break
         elif arg == "--espejo":
             mode = "ESPEJO"
-            break
+        elif arg == "--train":
+            train_model = True
         else:
             logger.warning("Argumento desconocido: %s", arg)
 
     # Si no hay argumento, usa .env
-    if not mode:
+    if not mode and not train_model:
         config = get_config()
         logger.debug("Configuración cargada desde .env: %s", config)
         mode = config.get("MODE", "RASA").upper()
+    
+    # Nueva ruta para los archivos de Rasa
+    rasa_dir = Path("src/infrastructure/rasa")
+    
+    # Entrenamiento del modelo si se especificó --train
+    if train_model:
+        logger.info("Iniciando entrenamiento de Rasa...")
+        # Cambiar al directorio de Rasa para el entrenamiento
+        original_dir = os.getcwd()
+        os.chdir(rasa_dir)
+        
+        try:
+            subprocess.run(["rasa", "train"], check=True)
+            logger.info("Entrenamiento completado exitosamente.")
+        except subprocess.CalledProcessError as e:
+            logger.exception("Error durante el entrenamiento de Rasa: %s", e)
+        finally:
+            # Volver al directorio original después del entrenamiento
+            os.chdir(original_dir)
+            
+        if not mode:  # Si solo se pidió entrenar, terminamos
+            return
+
     logger.info("Modo seleccionado: %s", mode)
 
     try:
         if mode == "RASA":
             logger.info("Iniciando Rasa como subproceso...")
-            # Nueva ruta para los archivos de Rasa
-            rasa_dir = Path("src/infrastructure/rasa")
-
             # Cambiar al directorio de Rasa para la ejecución
             os.chdir(rasa_dir)
             subprocess.run(["rasa", "run", "--enable-api"], check=True)
-
+            
             # Volver al directorio original después de la ejecución
             os.chdir(Path(rasa_dir).parent.parent.parent)
         elif mode in ("GOOGLE_GEMINI", "ESPEJO"):

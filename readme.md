@@ -20,17 +20,21 @@ Rasa Gemini Bot es un motor conversacional flexible que combina la estructura de
 
 ```
 .
-├── actions/               # Acciones personalizadas de Rasa
-├── data/                  # Datos de entrenamiento (NLU, reglas, historias)
-├── docs/                  # Documentación
-├── model/                 # Modelos entrenados de Rasa
-├── src/                   # Código principal
-│   ├── entities/          # Entidades de negocio
-│   ├── infrastructure/    # Servicios externos
-│   ├── interface_adapter/ # Adaptadores y controladores
-│   ├── shared/            # Utilidades comunes
-│   └── use_cases/         # Lógica de negocio
-└── tests/                 # Pruebas automatizadas
+├── src/                        # Código principal
+│   ├── entities/               # Entidades de negocio
+│   ├── infrastructure/         # Servicios externos
+│   │   ├── rasa/               # Motor conversacional Rasa
+│   │   │   ├── actions/        # Acciones personalizadas de Rasa
+│   │   │   ├── data/           # Datos de entrenamiento (NLU, reglas, historias)
+│   │   │   └── models/         # Modelos entrenados de Rasa
+│   │   ├── google_generativeai #
+│   │   ├── repositories        #
+│   │   └── fastapi/            # Implementación de API con FastAPI
+│   ├── interface_adapter/      # Adaptadores y controladores
+│   ├── shared/                 # Utilidades comunes
+│   └── use_cases/              # Lógica de negocio
+├── docs/                       # Documentación
+└── tests/                      # Pruebas automatizadas
 ```
 
 ## 🔧 Inicio rápido
@@ -38,7 +42,14 @@ Rasa Gemini Bot es un motor conversacional flexible que combina la estructura de
 1. Crea y activa un entorno virtual.
 2. Instala dependencias: `pip install -r requirements.txt`
 3. Copia `.env.example` a `.env` y configura tus variables.
-4. Ejecuta el bot: `python run.py` o `run.bat` (Windows).
+4. Entrena el modelo Rasa: 
+   - Sólo entrenamiento: `python run.py --train`
+   - Entrenamiento y ejecución: `python run.py --train --rasa`
+5. Ejecuta el bot en el modo deseado:
+   - Modo Rasa: `python run.py --rasa`
+   - Modo Gemini: `python run.py --gemini`
+   - Modo Espejo: `python run.py --espejo`
+   - O simplemente: `python run.py` (usará el modo configurado en .env)
 
 Consulta la [guía de instalación](docs/installation.md) para más detalles.
 
@@ -82,6 +93,7 @@ Próximas mejoras y objetivos:
 - [ ] **Fallback inteligente**: Si Rasa no entiende, delegar la respuesta a Google Gemini.
 - [ ] **Chatbot asistente de instalación**: Instrucciones de sistema y entrenamiento para ayudar a instalar y configurar Rasa.
 - [ ] **Optimización de archivos de entrenamiento**: Ajustar `nlu.yml`, `domain.yml`, etc. para mejorar la experiencia de onboarding y soporte.
+- [ ] **Integración con proyectos externos**: Implementación del caso de uso para clonar el proyecto messenger-bridge.
 
 ¿Tienes ideas o sugerencias? ¡Tu aporte es bienvenido!
 

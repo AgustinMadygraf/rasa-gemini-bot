@@ -47,6 +47,12 @@ responses:
   utter_confirmar_git:
   - text: "Gracias por la información sobre Git. Ahora podemos continuar con la instalación de Rasa."
 
+  utter_ask_proyecto_descargado:
+  - text: "¿Ya tienes descargado el proyecto messenger-bridge de GitHub (https://github.com/AgustinMadygraf/messenger-bridge)?"
+
+  utter_guia_clonar_proyecto:
+  - text: "Vamos a descargar el proyecto usando Git. Ejecuta el siguiente comando en tu terminal: git clone https://github.com/AgustinMadygraf/messenger-bridge"
+
 actions:
   - validate_instalar_rasa_form
 
@@ -64,7 +70,17 @@ slots:
           - active_loop: instalar_rasa_form
             requested_slot: git_instalado
 
+  proyecto_descargado:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: instalar_rasa_form
+            requested_slot: proyecto_descargado
+
 forms:
   instalar_rasa_form:
     required_slots:
+      - proyecto_descargado
       - git_instalado

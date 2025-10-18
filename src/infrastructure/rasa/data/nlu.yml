@@ -143,3 +143,16 @@ nlu:
     - quiero instalar Rasa
     - ayuda técnica
     - asistencia técnica
+
+- intent: informar_proyecto
+  examples: |
+    - sí, ya tengo el proyecto
+    - no, no tengo el proyecto descargado
+    - ya cloné el repositorio
+    - tengo el messenger-bridge
+    - no tengo messenger-bridge
+    - ya lo descargué
+    - aún no lo he descargado
+    - no sabía que tenía que descargar ese proyecto
+    - messenger-bridge ya está en mi PC
+    - falta descargar ese repo
