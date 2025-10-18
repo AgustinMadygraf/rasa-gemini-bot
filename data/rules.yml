@@ -15,9 +15,30 @@ rules:
 - rule: Manejar mensajes fuera de contexto
   steps:
   - intent: out_of_scope
-  - action: utter_out_of_scope   # Explica que solo responde sobre Rasa
+  - action: utter_out_of_scope
 
 - rule: Manejar baja confianza
   steps:
   - intent: fallback
-  - action: utter_fallback       # Solicita reformulación
+  - action: utter_fallback
+
+- rule: Animar cuando el usuario está triste
+  steps:
+  - intent: estado_triste
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+
+- rule: Activar formulario instalar_rasa_form
+  steps:
+  - intent: asistencia_tecnica
+  - action: instalar_rasa_form
+  - active_loop: instalar_rasa_form
+
+- rule: Enviar formulario instalar_rasa_form
+  condition:
+  - active_loop: instalar_rasa_form
+  steps:
+  - action: instalar_rasa_form
+  - active_loop: null
+  - action: utter_confirmar_git
+

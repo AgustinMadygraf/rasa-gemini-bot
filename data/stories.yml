@@ -14,17 +14,18 @@ stories:
   - intent: saludo
   - action: utter_saludo
   - intent: estado_triste
-
+  - action: utter_cheer_up
+  - action: utter_did_that_help
 
 - story: usuario fuera de contexto
   steps:
   - intent: out_of_scope
-  - action: utter_out_of_scope   # Muestra respuesta didáctica
+  - action: utter_out_of_scope
 
 - story: baja confianza
   steps:
   - intent: fallback
-  - action: utter_fallback       # Solicita reformulación
+  - action: utter_fallback
 
 - story: asistencia tecnica despues de saludo
   steps:
@@ -33,12 +34,5 @@ stories:
   - intent: estado_genial
   - action: utter_ofrecer_ayuda
   - intent: asistencia_tecnica
-  - action: utter_asistencia_tecnica   # Nueva respuesta específica
-
-- story: instalar rasa verificar git
-  steps:
-  - intent: asistencia_tecnica
   - action: instalar_rasa_form
-  - action: utter_preguntar_git
-  - intent: informar_git
-  - action: utter_confirmar_git
+  - active_loop: instalar_rasa_form

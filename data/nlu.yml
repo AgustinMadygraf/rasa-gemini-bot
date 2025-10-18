@@ -23,29 +23,25 @@ nlu:
     - buenas tardes
     - buenas noches
     - hola a todos
-    - vamos allá
-    - hola amigo
-    - buen día
-    - buena tarde
     - buen día a todos
 
 - intent: afirmar
   examples: |
     - sí
-    - claro
-    - por supuesto
-    - correcto
-    - eso suena bien
     - de acuerdo
+    - correcto
+    - exacto
+    - por supuesto
+    - claro
+    - afirmativo
 
 - intent: negar
   examples: |
     - no
-    - nunca
-    - no lo creo
-    - no me gusta eso
-    - de ninguna manera
     - no realmente
+    - para nada
+    - negativo
+    - nunca
 
 - intent: informar_git
   examples: |
@@ -57,33 +53,48 @@ nlu:
     - acabo de instalar Git
     - nunca instalé Git
     - ¿cómo sé si tengo Git?
+    - tengo Git
+    - tengo instalado Git
+    - tengo instalado GIT
+    - sí tengo git
+    - ya tengo git
+    - git está instalado
+    - sí, lo tengo
+    - ya lo instalé
+    - está instalado
+    - no tengo git instalado
+    - aún no tengo git
+    - no lo tengo
+    - falta instalarlo
+    - todavía no
 
 - intent: estado_genial
   examples: |
     - perfecto
-    - genial
-    - increíble
-    - me siento como un rey
-    - maravilloso
-    - me siento muy bien
-    - estoy genial
-    - estoy increíble
-    - voy a salvar el mundo
-    - súper emocionado
-    - extremadamente bien
-    - todo perfecto
-    - muy bien
-    - tan perfecto
-    - estoy bien, y vos?
-    - bien, ¿y tú?
-    - estoy bien
-    - todo bien
     - bien
+    - estoy bien
+    - muy bien
+    - todo bien
+    - genial
+    - excelente
+    - fantástico
+    - súper bien
+    - de maravilla
+    - increíble
+    - feliz
+    - contento
+    - estoy genial
+    - estoy perfecto
+    - todo excelente
+    - me siento bien
+    - me va bien
+    - ando bien
 
 - intent: estado_triste
   examples: |
     - mi día fue horrible
     - estoy triste
+    - me siento triste
     - no me siento muy bien
     - estoy decepcionado
     - súper triste
@@ -95,38 +106,40 @@ nlu:
     - no muy bien
     - extremadamente triste
     - tan triste
+    - estoy mal
+    - me siento mal
+    - ando mal
+    - mal
+    - me va mal
+    - estoy bajón
+    - estoy decaído
+    - me siento fatal
 
 - intent: desafio_bot
   examples: |
     - ¿eres un bot?
-    - ¿eres humano?
-    - ¿estoy hablando con un bot?
     - ¿estoy hablando con un humano?
+    - ¿eres real?
+    - ¿eres una persona?
 
 - intent: out_of_scope
   examples: |
     - ¿cuál es el clima?
-    - cuéntame un chiste
-    - ¿quién es el presidente?
-    - háblame de fútbol
-    - ¿puedes pedir una pizza?
-    - ¿cuánto cuesta un coche?
     - ¿me recomiendas una película?
+    - cuéntame un chiste
+    - ¿qué hora es?
 
 - intent: fallback
   examples: |
     - asdfghjkl
-    - qwertyuiop
-    - [mensaje sin sentido]
-    - [palabras aleatorias]
     - ¿?¿?¿?¿?
+    - jklñjklñ
 
 - intent: asistencia_tecnica
   examples: |
     - asistencia técnica para instalar RASA en mi PC
-    - quiero instalar Rasa en mi computadora
-    - ¿cómo instalo Rasa?
-    - ayuda para instalar Rasa
-    - necesito soporte para instalar Rasa
-    - ¿me explicas cómo instalar Rasa?
     - ¿puedes ayudarme a instalar Rasa?
+    - necesito ayuda con Rasa
+    - quiero instalar Rasa
+    - ayuda técnica
+    - asistencia técnica

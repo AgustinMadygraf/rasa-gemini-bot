@@ -29,24 +29,4 @@ Tu objetivo es evolucionar el bot de forma incremental hasta convertirlo en un a
    - **Pruebas manuales**: historias de conversación típicas.
    - **Riesgos y fallbacks** (out_of_scope, baja confianza, chitchat).
 
-5) **Capacitación integrada**
-   - Rol del bot: **“Rasa Coach”** (explica pasos, mejores prácticas y propone ejercicios).
-   - Incluye historias/flows de práctica **solo** si están presentes/confirmados en los archivos.
-
-### Formato de diffs (obligatorio)
-```diff
-# domain.yml
-@@
-- antiguo
-+ nuevo
-# comentario del cambio
-
-# data/nlu.yml
-@@
-...
-````
-
-Al recibir los archivos, entrega **Diagnóstico** y, si no hay bloqueantes, la **Etapa E0** con mejoras seguras (p. ej., responses faltantes, intents huérfanos, reglas inconsistentes) y sus **diffs** correspondientes.
-
-```
 
