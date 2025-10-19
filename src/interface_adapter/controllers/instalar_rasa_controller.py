@@ -10,7 +10,7 @@ class InstalarRasaController:
     def __init__(self, presenter=None):
         self.presenter = presenter or InstalarRasaPresenter()
         self.use_case = ValidarInstalacionRasaUseCase()
-    
+
     def validar_proyecto_descargado(self, valor):
         "Valida el estado del proyecto y determina acciones a tomar"
         if not isinstance(valor, str):
@@ -19,7 +19,7 @@ class InstalarRasaController:
         val = valor.lower().strip()
         if val not in ["si", "sí", "no"]:
             return {"valor_valido": False, "mensaje": self.presenter.mensaje_pregunta_proyecto_descargado()}
-    
+
         proyecto = self.use_case.validar_proyecto_descargado(val)
         return {
             "valor_valido": True,

@@ -8,9 +8,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 
 from src.shared.logger import get_logger
-
-from src.interface_adapter.controllers.instalar_rasa_controller import InstalarRasaController
-from src.interface_adapter.presenters.instalar_rasa_presenter import InstalarRasaPresenter
+from src.interface_adapter.gateways.instalar_rasa_gateway import InstalarRasaGateway
 
 # Inicializar el logger
 logger = get_logger(__name__)
@@ -19,9 +17,8 @@ class ValidateInstalarRasaForm(FormValidationAction):
     "Adaptador de infraestructura para el formulario instalar_rasa_form. Traduce entre la infraestructura de Rasa y la arquitectura limpia del sistema."
     def __init__(self):
         super().__init__()
-        self.presenter = InstalarRasaPresenter()
-        self.controller = InstalarRasaController(presenter=self.presenter)
-    
+        self.gateway = InstalarRasaGateway()
+
     def name(self) -> Text:
         return "validate_instalar_rasa_form"
 
@@ -102,13 +99,13 @@ class ValidateInstalarRasaForm(FormValidationAction):
         tracker: Tracker,
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
-        "Valida el valor del slot proyecto_descargado delegando al controlador."
+        "Valida el valor del slot proyecto_descargado delegando al gateway."
         logger.debug("Validating 'proyecto_descargado' slot with value: %s", slot_value)
 
-        # Delegar la validación al controlador
-        result = self.controller.validar_proyecto_descargado(slot_value)
+        # Delegar la validación al gateway
+        result = self.gateway.validar_proyecto_descargado(slot_value)
 
-        # Procesar el resultado del controlador
+        # Procesar el resultado
         if not result["valor_valido"]:
             # Si el valor no es válido, enviar mensaje de ayuda
             dispatcher.utter_message(**result["mensaje"])
@@ -122,12 +119,12 @@ class ValidateInstalarRasaForm(FormValidationAction):
             # Si ya tenemos información sobre git, evaluamos la instalación
             if git_value:
                 # Evaluar la instalación completa y mostrar mensajes apropiados
-                evaluacion = self.controller.evaluar_instalacion(
-                    result["valor_normalizado"], 
+                evaluacion = self.gateway.evaluar_instalacion(
+                    result["valor_normalizado"],
                     git_value
                 )
 
-                # Enviar mensajes generados por el controlador
+                # Enviar mensajes generados
                 for mensaje in evaluacion["mensajes"]:
                     dispatcher.utter_message(**mensaje)
 
@@ -169,17 +166,17 @@ class ValidateInstalarRasaForm(FormValidationAction):
         tracker: Tracker,
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
-        "Valida el valor del slot git_instalado delegando al controlador."
+        "Valida el valor del slot git_instalado delegando al gateway."
         logger.debug("Validating 'git_instalado' slot with value: %s", slot_value)
 
         # Para git_instalado, evaluamos la instalación completa
         if slot_value and tracker.get_slot("proyecto_descargado"):
-            evaluacion = self.controller.evaluar_instalacion(
+            evaluacion = self.gateway.evaluar_instalacion(
                 tracker.get_slot("proyecto_descargado"),
                 slot_value
             )
 
-            # Enviar mensajes generados por el controlador
+            # Enviar mensajes generados
             for mensaje in evaluacion["mensajes"]:
                 dispatcher.utter_message(**mensaje)
 
