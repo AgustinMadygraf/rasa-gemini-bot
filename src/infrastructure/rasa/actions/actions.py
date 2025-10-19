@@ -6,28 +6,13 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
+
 from src.shared.logger import get_logger
+
+from src.use_cases.validar_instalacion_rasa import ValidarInstalacionRasaUseCase
 
 # Inicializar el logger
 logger = get_logger(__name__)
-
-class ProyectoEntity:
-    "Entidad que representa el estado del proyecto"
-    def __init__(self, esta_descargado: bool = False):
-        self.esta_descargado = esta_descargado
-
-    def necesita_descarga(self) -> bool:
-        "Verifica si el proyecto necesita ser descargado"
-        return not self.esta_descargado
-
-class GitEntity:
-    """Entidad que representa el estado de Git"""
-    def __init__(self, esta_instalado: bool = False):
-        self.esta_instalado = esta_instalado
-
-    def puede_clonar(self) -> bool:
-        "Verifica si Git está instalado para poder clonar repositorios"
-        return self.esta_instalado
 
 class ValidateInstalarRasaForm(FormValidationAction):
     "Validates the instalar_rasa_form form"
@@ -61,16 +46,48 @@ class ValidateInstalarRasaForm(FormValidationAction):
         # Be conservative: only extract when the form is active and the requested_slot is proyecto_descargado
         # or when the intent explicitly affirms/negates.
         if active_loop == "instalar_rasa_form" and requested_slot == "proyecto_descargado":
+            # Common affirmative/negative cues (cover natural variants like 'no lo tengo instalado aún')
+            affirmative_cues = ["sí", "si", "tengo", "descargado", "ya", "lo tengo", "ya lo tengo", "lo descargué", "lo descargue", "ya lo descargué", "ya lo descargue"]
+            negative_cues = ["no lo tengo", "no lo tengo instalado", "no tengo", "aún no", "aun no", "todavía no", "todavia no", "no lo instalé", "no lo instale", "nunca", "falta descargar", "no está", "no esta"]
+
+            # Intent-based quick paths
             if intent == "afirmar":
-                if any(word in text_l for word in ["sí", "si", "tengo", "descargado", "ya", "claro"]):
-                    return {"proyecto_descargado": "si"}
+                logger.debug("Intent 'afirmar' detected while extracting proyecto_descargado")
+                return {"proyecto_descargado": "si"}
 
             if intent == "negar":
+                logger.debug("Intent 'negar' detected while extracting proyecto_descargado")
                 return {"proyecto_descargado": "no"}
 
-            # As fallback, accept explicit short answers containing si/no
-            if text_l.strip() in ["si", "sí", "no", "nunca"]:
-                return {"proyecto_descargado": "si"} if text_l.strip() in ["si", "sí"] else {"proyecto_descargado": "no"}
+            # Text-based checks (more permissive)
+            normalized = text_l.strip()
+            # exact short answers
+            if normalized in ["si", "sí"]:
+                logger.debug("Short affirmative answer detected: %s", text)
+                return {"proyecto_descargado": "si"}
+            if normalized in ["no", "n" , "nope"]:
+                logger.debug("Short negative answer detected: %s", text)
+                return {"proyecto_descargado": "no"}
+
+            # contains checks
+            if any(cue in text_l for cue in negative_cues):
+                logger.debug("Negative cue matched in text: %s -> %s", text, [c for c in negative_cues if c in text_l])
+                return {"proyecto_descargado": "no"}
+
+            if any(cue in text_l for cue in affirmative_cues):
+                logger.debug("Affirmative cue matched in text: %s -> %s", text, [c for c in affirmative_cues if c in text_l])
+                return {"proyecto_descargado": "si"}
+
+            # As a last resort, map single-word answers containing 'instal' or 'descarg' heuristically
+            if "instal" in text_l or "descarg" in text_l or "clon" in text_l:
+                # assume it's affirmative if it contains past-tense cues like 'ya' or 'tengo'
+                if any(w in text_l for w in ["ya", "tengo", "descarg", "clon", "clonado", "descargado"]):
+                    logger.debug("Heuristic affirmative for text: %s", text)
+                    return {"proyecto_descargado": "si"}
+                # otherwise prefer negative if 'no' present
+                if any(w in text_l for w in ["no", "aún", "aun", "todavía", "todavia", "nunca"]):
+                    logger.debug("Heuristic negative for text: %s", text)
+                    return {"proyecto_descargado": "no"}
 
         # Do not infer slot from generic mentions outside the form interaction
         return {}
@@ -82,11 +99,10 @@ class ValidateInstalarRasaForm(FormValidationAction):
         tracker: Tracker,
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
-        "Valida el valor del slot proyecto_descargado usando la entidad ProyectoEntity"
+        "Valida el valor del slot proyecto_descargado usando el caso de uso"
         logger.debug("Validating 'proyecto_descargado' slot with value: %s active_loop=%s requested_slot=%s",
                      slot_value, tracker.active_loop, tracker.get_slot("requested_slot"))
 
-        # Normalize and validate conservatively
         if not isinstance(slot_value, str):
             logger.debug("Invalid slot type for proyecto_descargado: %s", type(slot_value))
             return {"proyecto_descargado": None}
@@ -94,23 +110,21 @@ class ValidateInstalarRasaForm(FormValidationAction):
         val = slot_value.lower().strip()
         if val not in ["si", "sí", "no"]:
             logger.debug("Unrecognized value for proyecto_descargado: %s", val)
-            # ask again politely
             dispatcher.utter_message(response="utter_ask_proyecto_descargado")
             return {"proyecto_descargado": None}
 
-        proyecto = ProyectoEntity(esta_descargado=(val in ["si", "sí"]))
-
-        # Only perform side-effects (utter) if the form is active to avoid unsolicited messages
+        proyecto = ValidarInstalacionRasaUseCase.validar_proyecto_descargado(val)
         active_loop = tracker.active_loop.get("name") if tracker.active_loop else None
-        if proyecto.necesita_descarga() and active_loop == "instalar_rasa_form":
+        if active_loop == "instalar_rasa_form":
             git_value = tracker.get_slot("git_instalado")
-            git = GitEntity(esta_instalado=(git_value == "si" if git_value else False))
-            logger.debug("Git installation status: %s", git.esta_instalado)
-
-            if git.puede_clonar():
-                dispatcher.utter_message(response="utter_guia_clonar_proyecto")
-            else:
-                dispatcher.utter_message(text="Primero necesitarás instalar Git para poder descargar el proyecto.")
+            git = ValidarInstalacionRasaUseCase.validar_git_instalado(git_value if git_value else "no")
+            resultado = ValidarInstalacionRasaUseCase.necesita_descarga_y_git(proyecto, git)
+            logger.debug("Resultado caso de uso: %s", resultado)
+            if resultado["necesita_descarga"]:
+                if resultado["puede_clonar"]:
+                    dispatcher.utter_message(response="utter_guia_clonar_proyecto")
+                else:
+                    dispatcher.utter_message(text="Primero necesitarás instalar Git para poder descargar el proyecto.")
 
         return {"proyecto_descargado": "si" if proyecto.esta_descargado else "no"}
 
