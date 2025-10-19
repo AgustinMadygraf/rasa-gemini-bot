@@ -9,6 +9,11 @@ from rasa_sdk.types import DomainDict
 
 from src.shared.logger import get_logger
 from src.interface_adapter.gateways.instalar_rasa_gateway import InstalarRasaGateway
+from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
+from src.infrastructure.google_generative_ai.gemini_service import GeminiService
+
+from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
+from src.shared.config import get_config
 
 # Inicializar el logger
 logger = get_logger(__name__)
@@ -219,4 +224,95 @@ class ActionProvideNextSteps(Action):
 
         # Si tiene ambos -> continuar con Rasa
         dispatcher.utter_message(response="utter_continue_with_rasa")
+        return []
+
+
+class ActionGeminiFallback(Action):
+    """Fallback avanzado: delega la respuesta a Gemini cuando Rasa no tiene suficiente confianza."""
+
+    def __init__(self):
+        super().__init__()
+        # Carga instrucciones de sistema desde JSON si está configurado
+        config = get_config()
+        instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH")
+        instructions = None
+        if instructions_path:
+            # Importar el repositorio JSON y pasarlo al caso de uso
+            from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
+            instructions_repository = JsonInstructionsRepository(json_path=instructions_path)
+            instructions = LoadSystemInstructionsUseCase(instructions_repository).execute()
+        self.gemini = GeminiGateway(
+            GeminiService(api_key=config.get("GOOGLE_GEMINI_API_KEY"), instructions_json_path=instructions_path)
+        )
+        self.system_instructions = instructions
+
+    def name(self) -> Text:
+        return "action_gemini_fallback"
+
+    async def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any]
+    ) -> List[Dict[Text, Any]]:
+        # Detectar contexto y construir prompt más completo para Gemini
+        events = tracker.events or []
+        history = []
+        for e in events:
+            if e.get("event") == "user":
+                txt = e.get("text") or ""
+                history.append(f"Usuario: {txt}")
+            elif e.get("event") == "bot":
+                # bot puede haber utters sin 'text' si usa response templates
+                txt = e.get("text") or ""
+                if not txt:
+                    # intentar extraer el template si existe
+                    metadata = e.get("metadata") or {}
+                    txt = metadata.get("template", "")
+                if txt:
+                    history.append(f"Bot: {txt}")
+
+        # Tomar los últimos N turnos (pares user+bot) para mantener contexto
+        max_turns = 10
+        prompt_history = "\n".join(history[-max_turns:])
+
+        # Incluir información de slots relevantes y active_loop
+        slot_info = {k: tracker.get_slot(k) for k in tracker.slots.keys()} if hasattr(tracker, "slots") else {}
+        active_loop = tracker.active_loop.get("name") if tracker.active_loop else None
+
+        # Construir prompt final para Gemini
+        last_user = tracker.latest_message.get("text", "") or ""
+        prompt_parts = ["Actúa como el asistente MadyBot. Usa el historial de conversación y responde de forma breve y útil."]
+        if self.system_instructions:
+            prompt_parts.append(f"Instrucciones del sistema: {self.system_instructions}")
+        prompt_parts.append("Historial:")
+        prompt_parts.append(prompt_history)
+        prompt_parts.append(f"Último mensaje de usuario: {last_user}")
+        prompt_parts.append(f"Slots: {slot_info}")
+        prompt_parts.append(f"Active loop: {active_loop}")
+
+        prompt = "\n".join([p for p in prompt_parts if p])
+
+        logger.debug("ActionGeminiFallback invoked. intent=%s latest_text=%s active_loop=%s slots=%s history_len=%d",
+                     tracker.latest_message.get("intent", {}).get("name"),
+                     last_user,
+                     active_loop,
+                     slot_info,
+                     len(history))
+
+        # Llamar a Gemini con manejo básico de errores/timeout
+        try:
+            # si el gateway provee un método async podríamos await; aquí usamos sync
+            respuesta = self.gemini.get_response(prompt, self.system_instructions)
+        except Exception as e:  # pylint: disable=broad-except
+            logger.error("Error calling Gemini service: %s", e, exc_info=True)
+            dispatcher.utter_message(text="Lo siento, tuve un problema consultando el motor de respuestas. Intenta de nuevo más tarde.")
+            return []
+
+        # Enviar respuesta generada
+        if respuesta:
+            dispatcher.utter_message(text=respuesta)
+        else:
+            dispatcher.utter_message(text="No tengo una respuesta en este momento.")
+
         return []

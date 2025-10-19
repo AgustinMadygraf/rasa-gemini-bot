@@ -21,6 +21,8 @@ pipeline:
   - name: FallbackClassifier
     threshold: 0.3
     ambiguity_threshold: 0.1
+    fallback_intent_name: "fallback"
+    fallback_action_name: "action_gemini_fallback"
 
 policies:
   - name: MemoizationPolicy

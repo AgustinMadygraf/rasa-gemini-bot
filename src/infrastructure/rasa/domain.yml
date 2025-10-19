@@ -65,6 +65,7 @@ responses:
 actions:
   - validate_instalar_rasa_form
   - action_provide_next_steps
+  - action_gemini_fallback
 
 session_config:
   session_expiration_time: 60
