@@ -1,8 +1,8 @@
 """
-Entidad que representa el estado del proyecto
-"""
+Path: src/entities/proyecto_entity.py"""
 
 class ProyectoEntity:
+    "Entidad que representa el estado del proyecto"
     def __init__(self, esta_descargado: bool = False):
         self.esta_descargado = esta_descargado
 
