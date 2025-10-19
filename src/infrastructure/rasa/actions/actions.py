@@ -3,7 +3,7 @@ Path: src/infrastructure/rasa/actions/actions.py
 """
 
 from typing import Any, Text, Dict, List
-from rasa_sdk import Tracker, FormValidationAction
+from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 
@@ -183,3 +183,40 @@ class ValidateInstalarRasaForm(FormValidationAction):
             return {"git_instalado": evaluacion["git_instalado"]}
 
         return {"git_instalado": slot_value}
+
+
+class ActionProvideNextSteps(Action):
+    """Proporciona instrucciones específicas basadas en el estado de los slots después de completar el formulario."""
+
+    def __init__(self):
+        super().__init__()
+        self.gateway = InstalarRasaGateway()
+
+    def name(self) -> Text:
+        return "action_provide_next_steps"
+
+    async def run(self,
+                  dispatcher: CollectingDispatcher,
+                  tracker: Tracker,
+                  domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        proyecto_descargado = (tracker.get_slot("proyecto_descargado") or "no").lower()
+        git_instalado = (tracker.get_slot("git_instalado") or "no").lower()
+
+        logger.debug("action_provide_next_steps: proyecto_descargado=%s git_instalado=%s",
+                     proyecto_descargado, git_instalado)
+
+        # Si no tiene Git instalado -> sugerir instalar y cómo verificar
+        if git_instalado not in ["si", "sí"]:
+            dispatcher.utter_message(response="utter_install_git")
+            dispatcher.utter_message(response="utter_check_git_installed")
+            return []
+
+        # Si tiene Git pero no el proyecto -> instruir clonación
+        if proyecto_descargado not in ["si", "sí"]:
+            dispatcher.utter_message(response="utter_guia_clonar_proyecto")
+            return []
+
+        # Si tiene ambos -> continuar con Rasa
+        dispatcher.utter_message(response="utter_continue_with_rasa")
+        return []

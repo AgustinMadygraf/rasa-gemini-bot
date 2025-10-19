@@ -41,5 +41,5 @@ rules:
   steps:
   - action: instalar_rasa_form
   - active_loop: null
-  - action: utter_confirmar_git
+  - action: action_provide_next_steps
 

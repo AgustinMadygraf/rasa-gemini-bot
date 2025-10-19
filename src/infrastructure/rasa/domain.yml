@@ -42,7 +42,7 @@ responses:
   - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC."
 
   utter_ask_git_instalado:
-  - text: "¿Tienes Git instalado en tu sistema?"
+  - text: "¿Tenés Git instalado en tu sistema?"
 
   utter_confirmar_git:
   - text: "Gracias por la información sobre Git. Ahora podemos continuar con la instalación de Rasa."
@@ -52,9 +52,19 @@ responses:
 
   utter_guia_clonar_proyecto:
   - text: "Vamos a descargar el proyecto usando Git. Ejecuta el siguiente comando en tu terminal: git clone https://github.com/AgustinMadygraf/messenger-bridge"
+  
+  utter_check_git_installed:
+  - text: "Para verificar si tienes Git instalado, abre el CMD (Símbolo del sistema) y escribe: git --version"
+  
+  utter_install_git:
+  - text: "Necesitarás instalar Git para poder descargar el proyecto. Puedes descargarlo desde: https://git-scm.com/downloads"
+  
+  utter_continue_with_rasa:
+  - text: "¡Excelente! Ahora que tienes Git instalado y el proyecto descargado, podemos continuar con la instalación de Rasa."
 
 actions:
   - validate_instalar_rasa_form
+  - action_provide_next_steps
 
 session_config:
   session_expiration_time: 60
