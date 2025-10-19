@@ -95,6 +95,7 @@ def main():
                 run_cmd = [
                     "rasa", "run", 
                     "--enable-api",
+                    "--endpoints", str(rasa_dir / "endpoints.yml"),
                     "-m", str(latest_model)
                 ]
                 subprocess.run(run_cmd, check=True)
