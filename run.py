@@ -38,26 +38,42 @@ def main():
         config = get_config()
         logger.debug("Configuración cargada desde .env: %s", config)
         mode = config.get("MODE", "RASA").upper()
-    
+
     # Nueva ruta para los archivos de Rasa
     rasa_dir = Path("src/infrastructure/rasa")
-    
+    models_dir = rasa_dir / "models"
+
+    # Asegurarse de que el directorio de modelos exista
+    os.makedirs(models_dir, exist_ok=True)
+
     # Entrenamiento del modelo si se especificó --train
     if train_model:
         logger.info("Iniciando entrenamiento de Rasa...")
-        # Cambiar al directorio de Rasa para el entrenamiento
         original_dir = os.getcwd()
-        os.chdir(rasa_dir)
-        
+
         try:
-            subprocess.run(["rasa", "train"], check=True)
+            # Configurar RASA_HOME para que .rasa se cree en el subdirectorio
+            os.environ["RASA_HOME"] = str(rasa_dir.absolute())
+
+            # Construir el comando con rutas específicas
+            train_cmd = [
+                "rasa", "train",
+                "--domain", str(rasa_dir / "domain.yml"),
+                "--config", str(rasa_dir / "config.yml"),
+                "--data", str(rasa_dir / "data"),
+                "--out", str(models_dir)
+            ]
+
+            # Ejecutar entrenamiento con rutas específicas
+            logger.info("Ejecutando: %s", " ".join(train_cmd))
+            subprocess.run(train_cmd, check=True)
             logger.info("Entrenamiento completado exitosamente.")
         except subprocess.CalledProcessError as e:
             logger.exception("Error durante el entrenamiento de Rasa: %s", e)
         finally:
             # Volver al directorio original después del entrenamiento
             os.chdir(original_dir)
-            
+
         if not mode:  # Si solo se pidió entrenar, terminamos
             return
 
@@ -66,12 +82,25 @@ def main():
     try:
         if mode == "RASA":
             logger.info("Iniciando Rasa como subproceso...")
-            # Cambiar al directorio de Rasa para la ejecución
-            os.chdir(rasa_dir)
-            subprocess.run(["rasa", "run", "--enable-api"], check=True)
-            
-            # Volver al directorio original después de la ejecución
-            os.chdir(Path(rasa_dir).parent.parent.parent)
+            # Configurar RASA_HOME para rutas consistentes
+            os.environ["RASA_HOME"] = str(rasa_dir.absolute())
+
+            # Buscar el modelo más reciente en el directorio de modelos personalizado
+            model_files = list(models_dir.glob("*.tar.gz"))
+            if model_files:
+                latest_model = max(model_files, key=os.path.getctime)
+                logger.info("Usando el modelo más reciente: %s", latest_model)
+
+                # Ejecutar con el modelo específico
+                run_cmd = [
+                    "rasa", "run", 
+                    "--enable-api",
+                    "-m", str(latest_model)
+                ]
+                subprocess.run(run_cmd, check=True)
+            else:
+                logger.error("No se encontraron modelos entrenados en %s", models_dir)
+                input("Presione Enter para salir...")
         elif mode in ("GOOGLE_GEMINI", "ESPEJO"):
             logger.info("Iniciando FastAPI en modo %s...", mode)
             os.environ["APP_MODE"] = mode

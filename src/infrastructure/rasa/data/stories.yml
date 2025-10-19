@@ -34,5 +34,6 @@ stories:
   - intent: estado_genial
   - action: utter_ofrecer_ayuda
   - intent: asistencia_tecnica
+  - action: utter_asistencia_tecnica
   - action: instalar_rasa_form
   - active_loop: instalar_rasa_form

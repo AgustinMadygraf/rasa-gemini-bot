@@ -6,6 +6,10 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
+from src.shared.logger import get_logger
+
+# Inicializar el logger
+logger = get_logger(__name__)
 
 class ProyectoEntity:
     "Entidad que representa el estado del proyecto"
@@ -37,7 +41,7 @@ class ValidateInstalarRasaForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> List[Text]:
-        # Primero preguntamos por el proyecto, luego por Git
+        logger.debug("Determining required slots for instalar_rasa_form.")
         return ["proyecto_descargado", "git_instalado"]
 
     async def extract_proyecto_descargado(
@@ -45,18 +49,20 @@ class ValidateInstalarRasaForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         "Extrae el valor del slot proyecto_descargado basado en la intención del usuario"
         intent = tracker.latest_message.get("intent", {}).get("name")
+        logger.debug("Extracting 'proyecto_descargado' slot. Detected intent: %s", intent)
 
         if intent == "afirmar":
-            # Verificar si el mensaje contiene indicios de que SÍ tiene el proyecto
             text = tracker.latest_message.get("text", "").lower()
+            logger.debug("User text for afirmación: %s", text)
             if any(word in text for word in ["sí", "si", "tengo", "descargado", "ya", "claro"]):
                 return {"proyecto_descargado": "si"}
 
         if intent == "negar":
+            logger.debug("User negated having the project.")
             return {"proyecto_descargado": "no"}
 
-        # Si menciona el proyecto específicamente
         text = tracker.latest_message.get("text", "").lower()
+        logger.debug("User text for proyecto_descargado: %s", text)
         if "messenger" in text or "bridge" in text or "proyecto" in text:
             if any(word in text for word in ["no", "nunca", "falta", "aún no", "todavía no"]):
                 return {"proyecto_descargado": "no"}
@@ -73,12 +79,13 @@ class ValidateInstalarRasaForm(FormValidationAction):
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
         "Valida el valor del slot proyecto_descargado usando la entidad ProyectoEntity"
+        logger.debug("Validating 'proyecto_descargado' slot with value: %s", slot_value)
         proyecto = ProyectoEntity(esta_descargado=slot_value.lower() == "si")
 
         if proyecto.necesita_descarga():
-            # Verificar si Git está instalado
             git_value = tracker.get_slot("git_instalado")
             git = GitEntity(esta_instalado=git_value == "si" if git_value else False)
+            logger.debug("Git installation status: %s", git.esta_instalado)
 
             if git.puede_clonar():
                 dispatcher.utter_message(response="utter_guia_clonar_proyecto")
@@ -92,18 +99,20 @@ class ValidateInstalarRasaForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         " Extrae el valor del slot git_instalado basado en la intención del usuario"
         intent = tracker.latest_message.get("intent", {}).get("name")
+        logger.debug("Extracting 'git_instalado' slot. Detected intent: %s", intent)
 
         if intent == "afirmar" or intent == "informar_git":
-            # Verificar si el mensaje contiene indicios de que SÍ tiene Git
             text = tracker.latest_message.get("text", "").lower()
+            logger.debug("User text for afirmación: %s", text)
             if any(word in text for word in ["sí", "si", "tengo", "instalado", "ya", "claro"]):
                 return {"git_instalado": "si"}
 
         if intent == "negar":
+            logger.debug("User negated having Git installed.")
             return {"git_instalado": "no"}
 
-        # Si menciona Git específicamente
         text = tracker.latest_message.get("text", "").lower()
+        logger.debug("User text for git_instalado: %s", text)
         if "git" in text:
             if any(word in text for word in ["no", "nunca", "falta", "aún no", "todavía no"]):
                 return {"git_instalado": "no"}
@@ -120,4 +129,5 @@ class ValidateInstalarRasaForm(FormValidationAction):
         _domain: DomainDict,
     ) -> Dict[Text, Any]:
         "Valida el valor del slot git_instalado"
+        logger.debug("Validating 'git_instalado' slot with value: %s", slot_value)
         return {"git_instalado": slot_value}

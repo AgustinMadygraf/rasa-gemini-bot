@@ -1,6 +1,6 @@
-src/infrastructure/rasa/.rasa/
 venv/
 __pycache__/
 *.pyc
 .env
 src/infrastructure/rasa/models/*.tar.gz
+.rasa/

@@ -36,7 +36,7 @@ responses:
   - text: "No entendí tu mensaje. ¿Puedes reformularlo o preguntar sobre Rasa?"
 
   utter_ofrecer_ayuda:
-  - text: "Bien, ¿En qué te puedo ayudar? ¿Asistencia técnica para Rasa o capacitaciones?"
+  - text: "Bien, ¿En qué te puedo ayudar? ¿Asistencia técnica para Instalar Rasa? ¿Capacitaciones sobre este tema?"
 
   utter_asistencia_tecnica:
   - text: "¡Perfecto! Te puedo guiar para instalar Rasa en tu PC."
