@@ -1,3 +1,3 @@
 @echo off
 call .\venv\Scripts\activate.bat
-rasa run --debug
+rasa run actions --debug
