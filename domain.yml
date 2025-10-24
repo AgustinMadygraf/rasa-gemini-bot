@@ -1,0 +1,22 @@
+version: "3.1"
+
+intents:
+  - saludo
+  - despedida
+  - out_of_scope
+
+responses:
+  utter_saludo:
+  - text: "¡Hola! ¿Cómo estás?"
+
+  utter_despedida:
+  - text: "Adiós"
+
+actions:
+  - utter_saludo
+  - utter_despedida
+  - action_gemini_fallback
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
