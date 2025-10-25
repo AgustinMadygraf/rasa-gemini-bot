@@ -1,3 +1,5 @@
+version: "3.1"
+
 nlu:
 - intent: saludo
   examples: |
@@ -8,8 +10,7 @@ nlu:
     - buenos días
     - buenas tardes
     - buenas noches
-    - hola a todos
-    - buen día a todos
+    - buen día
 
 - intent: despedida
   examples: |
@@ -22,8 +23,10 @@ nlu:
     - nos vemos
     - adiós adiós
     - hasta la próxima
+    - chau
+    - Chau chau
+    - Chau, hasta luego
 
-    - ¿Puedes ayudarme con física cuántica?    - Esto no tiene sentido    - No entiendo nada    - ¿Quién es el presidente de la luna?    - ¿Cuánto es 2+2?    - ¿Puedes volar?    - ¿Cuál es la capital de Marte?  examples: |- intent: out_of_scope
 - intent: out_of_scope
   examples: |
     - ¿Cuál es la capital de Marte?

@@ -40,12 +40,7 @@ class GeminiService(GeminiResponder):
 
     @staticmethod
     def load_system_instructions_from_json(json_path, key="instructions"):
-        """
-        Carga instrucciones de sistema desde un archivo JSON.
-        :param json_path: Ruta al archivo JSON.
-        :param key: Clave donde están las instrucciones.
-        :return: str | None
-        """
+        "Carga las instrucciones de sistema desde un archivo JSON."
         try:
             logger.debug("Leyendo archivo JSON de instrucciones: %s", json_path)
             with open(json_path, "r", encoding="utf-8") as f:

@@ -6,12 +6,15 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
+from src.shared.config import get_config
+
+from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
+from src.infrastructure.google_generative_ai.gemini_service import GeminiService
+from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
+from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
+
 def build_history_from_tracker(tracker: Tracker, max_turns: int = 10) -> str:
-    """
-    Construye el historial conversacional en formato:
-    Usuario: ...\nGemini: ...\n...
-    Solo incluye eventos relevantes (user, bot).
-    """
+    "Construir el historial de conversación desde el tracker"
     events = tracker.events
     history = []
     for event in events:
@@ -42,11 +45,6 @@ class ActionGeminiFallback(Action):
 
         # --- Reutilizar gateways, casos de uso y entidades ---
         try:
-            from src.shared.config import get_config
-            from src.infrastructure.repositories.json_instructions_repository import JsonInstructionsRepository
-            from src.use_cases.load_system_instructions import LoadSystemInstructionsUseCase
-            from src.infrastructure.google_generative_ai.gemini_service import GeminiService
-            from src.interface_adapter.gateways.gemini_gateway import GeminiGateway
 
             config = get_config()
             instructions_path = config.get("SYSTEM_INSTRUCTIONS_PATH")
@@ -57,10 +55,6 @@ class ActionGeminiFallback(Action):
             gemini_service = GeminiService()
             gemini = GeminiGateway(gemini_service)
 
-            # Logging antes de la llamada
-            dispatcher.utter_message(text=f"[DEBUG] Prompt enviado a Gemini:\n{prompt_with_history}")
-
-            # Si quieres logging, usa print() o logger, pero NO dispatcher.utter_message para debug
             respuesta = gemini.get_response(prompt_with_history, system_instructions)
             dispatcher.utter_message(text=respuesta)
         except Exception as e:
