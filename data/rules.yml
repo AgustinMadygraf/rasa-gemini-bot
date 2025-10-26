@@ -12,6 +12,7 @@ rules:
 
 - rule: Fallback con Gemini
   steps:
+
     - intent: nlu_fallback
     - action: action_gemini_fallback
 

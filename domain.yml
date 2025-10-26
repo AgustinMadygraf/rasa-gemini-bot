@@ -7,7 +7,7 @@ intents:
 
 responses:
   utter_saludo:
-  - text: "¡Hola! ¿Cómo estás?"
+  - text: "¡Hola!  ¿en qué te puedo dar una mano hoy? ¿Necesitás ayuda con el diseño de tu NLU, armando unas stories o rules, desarrollando actions personalizadas, o quizás pensando en el despliegue de tu bot?"
 
   utter_despedida:
   - text: "Adiós"

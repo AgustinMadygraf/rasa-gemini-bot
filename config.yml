@@ -14,7 +14,7 @@ pipeline:
 - name: "ResponseSelector"
 - name: "FallbackClassifier"
   threshold: 0.3
-  nlu_threshold: 0.3
+  nlu_threshold: 0.2  # <-- más sensible al fallback
   fallback_action_name: "action_gemini_fallback"
 assistant_id: 20251023-202944-soft-hypothesis
 policies:

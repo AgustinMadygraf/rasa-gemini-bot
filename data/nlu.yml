@@ -29,10 +29,13 @@ nlu:
 
 - intent: out_of_scope
   examples: |
-    - ¿Cuál es la capital de Marte?
-    - ¿Puedes volar?
-    - ¿Cuánto es 2+2?
-    - ¿Quién es el presidente de la luna?
+    - ¿Cuál es la capital de Francia?
+    - ¿Cómo se hace una pizza?
+    - ¿Puedes contarme un chiste?
+    - ¿Qué opinas de la inteligencia artificial?
+    - ¿Cuál es el clima hoy?
+    - ¿Cómo integro WhatsApp con Rasa?
+    - ¿Qué es Gemini?
+    - asdfghjkl
     - No entiendo nada
-    - Esto no tiene sentido
-    - ¿Puedes ayudarme con física cuántica?
+    - ¿Puedes ayudarme con algo raro?
