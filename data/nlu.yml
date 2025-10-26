@@ -34,8 +34,19 @@ nlu:
     - ¿Puedes contarme un chiste?
     - ¿Qué opinas de la inteligencia artificial?
     - ¿Cuál es el clima hoy?
-    - ¿Cómo integro WhatsApp con Rasa?
-    - ¿Qué es Gemini?
     - asdfghjkl
     - No entiendo nada
     - ¿Puedes ayudarme con algo raro?
+
+- intent: not_implemented
+  examples: |
+    - ¿Cómo configuro el canal de Telegram en Rasa?
+    - ¿Podés mostrarme cómo crear una custom action para enviar emails?
+    - ¿Cómo hago para entrenar el modelo con datos nuevos?
+    - ¿Qué pasos debo seguir para desplegar el bot en Docker?
+    - ¿Cómo puedo agregar autenticación de usuarios en mi bot?
+    - ¿Me das un ejemplo de integración con Slack?
+    - ¿Cómo gestiono múltiples idiomas en Rasa?
+    - ¿Podés explicarme cómo usar slots dinámicos?
+    - ¿Cómo puedo loggear las conversaciones en una base de datos?
+    - ¿Qué opciones hay para monitorear el rendimiento del bot?

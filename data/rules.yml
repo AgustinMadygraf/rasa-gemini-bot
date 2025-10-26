@@ -12,11 +12,15 @@ rules:
 
 - rule: Fallback con Gemini
   steps:
-
     - intent: nlu_fallback
     - action: action_gemini_fallback
 
 - rule: Out of scope con Gemini
   steps:
     - intent: out_of_scope
+    - action: action_gemini_fallback
+
+- rule: Not implemented con Gemini
+  steps:
+    - intent: not_implemented
     - action: action_gemini_fallback

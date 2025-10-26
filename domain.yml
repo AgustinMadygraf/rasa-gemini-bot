@@ -4,6 +4,7 @@ intents:
   - saludo
   - despedida
   - out_of_scope
+  - not_implemented
 
 responses:
   utter_saludo:

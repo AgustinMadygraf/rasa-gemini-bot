@@ -7,3 +7,13 @@ stories:
   - action: utter_saludo
   - intent: despedida
   - action: utter_despedida
+
+- story: fuera de alcance (out_of_scope)
+  steps:
+  - intent: out_of_scope
+  - action: action_gemini_fallback
+
+- story: funcionalidad no implementada (not_implemented)
+  steps:
+  - intent: not_implemented
+  - action: action_gemini_fallback
