@@ -35,7 +35,7 @@ class ActionGeminiFallback(Action):
     def name(self) -> Text:
         return "action_gemini_fallback"
 
-    def run(self, dispatcher: CollectingDispatcher,
+    async def run(self, dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         "Fallback action for Gemini"
@@ -57,6 +57,6 @@ class ActionGeminiFallback(Action):
 
             respuesta = gemini.get_response(prompt_with_history, system_instructions)
             dispatcher.utter_message(text=respuesta)
-        except Exception as e:
+        except (FileNotFoundError, KeyError, ValueError, RuntimeError) as e:
             dispatcher.utter_message(text=f"[ERROR] Fallback Gemini: {e}")
         return []
