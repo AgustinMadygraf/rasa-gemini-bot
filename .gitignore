@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .env
 models/*.tar.gz
+src/infrastructure/google_generative_ai/system_instructions.json
