@@ -7,7 +7,7 @@ from collections import defaultdict
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from src.shared.logger import get_logger
+from src.shared.logger_rasa_v0 import get_logger
 
 logger = get_logger("fastapi-app")
 

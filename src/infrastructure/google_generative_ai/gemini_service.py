@@ -5,7 +5,7 @@ Path: src/infrastructure/google_generativeai/gemini_service.py
 import json
 import google.generativeai as genai
 
-from src.shared.logger import get_logger
+from src.shared.logger_rasa_v0 import get_logger
 from src.shared.config import get_config
 
 from src.entities.gemini_responder import GeminiResponder

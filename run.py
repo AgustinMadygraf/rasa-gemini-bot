@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 from src.shared.config import get_config
-from src.shared.logger import get_logger
+from src.shared.logger_rasa_v0 import get_logger
 
 logger = get_logger(__name__)
 
